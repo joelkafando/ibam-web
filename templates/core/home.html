@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil | IBAM{% endblock %}
+
+{% block content %}
+
+<!-- 1. FENÊTRE DYNAMIQUE (CAROUSEL) -->
+<div id="heroCarousel" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="{% static 'images/hero/slide1.jpg' %}" class="d-block w-100" alt="Campus IBAM" style="height: 550px; object-fit: cover; filter: brightness(60%);">
+           <div class="carousel-caption d-none d-md-block text-left mb-5">
+                <h1 class="display-3 font-weight-bold">L'Excellence Professionnelle</h1>
+                <p class="lead">Bienvenue à l'Institut Burkinabè des Arts et Métiers.</p>
+                <div class="mt-4 d-flex justify-content-center">
+                    <a href="{% url 'formations' %}" class="btn-login-custom py-2 px-5 bg-transparent border-white">NOS FILIÈRES</a>
+                    <a href="{% url 'accounts:register' %}" class="btn-login-custom py-2 px-5 bg-transparent border-white">S'INSCRIRE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. ACCÈS RAPIDES (CARTES) -->
+<section class="container py-5">
+    <div class="row mt-n5 position-relative" style="z-index: 10;">
+        <div class="col-md-4">
+            <div class="card-quick-access bg-white p-4 text-center shadow">
+                <i class="fas fa-graduation-cap fa-3x mb-3 text-warning"></i>
+                <h4 class="font-weight-bold">ADMISSIONS</h4>
+                <p class="text-muted">Procédures, calendrier des tests et conditions d'accès.</p>
+                <a href="{% url 'admissions' %}" class="stretched-link text-dark">Consulter <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-quick-access bg-white p-4 text-center shadow" style="border-top: 5px solid var(--uts-red);">
+                <i class="fas fa-book-open fa-3x mb-3 text-danger"></i>
+                <h4 class="font-weight-bold">FORMATIONS</h4>
+                <p class="text-muted">Explorez nos filières professionnalisantes de haut niveau.</p>
+                <a href="{% url 'formations' %}" class="stretched-link text-dark">Découvrir <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-quick-access bg-white p-4 text-center shadow">
+                <i class="fas fa-users fa-3x mb-3 text-secondary"></i>
+                <h4 class="font-weight-bold">ALUMNI</h4>
+                <p class="text-muted">Rejoignez le réseau des anciens diplômés de l'institut.</p>
+                <a href="#" class="stretched-link text-dark">Rejoindre <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row">
+    {% for news in announcements %}
+    <div class="col-md-4 mb-4">
+        <div class="card-news shadow-sm h-100">
+            <div class="news-img-container">
+                {% if news.image %}
+                    <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                {% else %}
+                    <img src="{% static 'images/campus/default_news.jpg' %}" alt="IBAM">
+                {% endif %}
+                <div class="news-date-badge">{{ news.date_published|date:"d" }} <br> <span>{{ news.date_published|date:"M" }}</span></div>
+            </div>
+            <div class="card-body p-4">
+                <span class="badge badge-warning mb-2 text-white">{{ news.get_category_display }}</span>
+                <h5 class="font-weight-bold">{{ news.title }}</h5>
+                <p class="text-muted small">{{ news.content|truncatewords:15 }}</p>
+                <hr>
+                <a href="{% url 'announcements:announcement_detail' news.pk %}" class="text-dark font-weight-bold small stretched-link">LIRE LA SUITE <i class="fas fa-chevron-right ml-1"></i></a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center w-100">Aucune actualité pour le moment.</p>
+    {% endfor %}
+</div>
+
+
+    </div>
+</section>
+
+{% endblock %}

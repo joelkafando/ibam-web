@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Header de la page -->
+<section class="py-5 text-center text-white" style="background: linear-gradient(rgba(0, 77, 38, 0.85), rgba(0, 77, 38, 0.85)); background-color: #004d26;">
+    <div class="container py-4">
+        <h1 class="display-4 font-weight-bold">Nos Filières de Formation</h1>
+        <p class="lead">L'excellence académique pour des cadres opérationnels.</p>
+    </div>
+</section>
+
+<!-- ================= SECTION 1 : LICENCES PROFESSIONNELLES ================= -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="h4 text-success font-weight-bold mb-4 border-left border-warning" style="border-left-width: 4px !important; padding-left: 1rem;">
+            Nos Licences Professionnelles
+        </h2>
+
+        <!-- Grille de cartes pour les Licences -->
+        <div class="row">
+            {% for f in filieres %}
+                {% if "Licence" in f.niveau %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0" style="border-bottom: 4px solid #004d26 !important; background-color: white;">
+                        <div class="card-body p-4 d-flex flex-column align-items-start">
+                            
+                            <!-- Badge du niveau d'études -->
+                            <div class="mb-3 w-100">
+                                <span class="badge badge-warning text-dark p-2 font-weight-bold text-wrap text-left" style="white-space: normal; display: inline-block; width: 100%; font-size: 85%;">
+                                    {{ f.niveau }}
+                                </span>
+                            </div>
+                            
+                            <!-- Titre de la filière sécurisé contre le débordement -->
+                            <div class="w-100 mb-3" style="word-wrap: break-word; overflow-wrap: break-word;">
+                                <h5 class="card-title font-weight-bold text-dark m-0" style="white-space: normal; font-size: 1.2rem; line-height: 1.4;">
+                                    {{ f.nom_filiere }}
+                                </h5>
+                            </div>
+                            
+                            <!-- Description courte -->
+                            <p class="card-text text-secondary small flex-grow-1" style="line-height: 1.6;">
+                                {{ f.description }}
+                            </p>
+                        </div>
+                        
+                        <!-- Pied de carte avec bouton d'action -->
+                        <div class="card-footer bg-white border-0 pb-4 px-4">
+                            <button class="btn btn-outline-success btn-sm w-100 font-weight-bold" data-toggle="modal" data-target="#modalLicence{{ f.id_filiere }}">
+                                Voir les détails
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FENÊTRE SURGISSANTE (MODALE LICENCE) -->
+                <div class="modal fade" id="modalLicence{{ f.id_filiere }}" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header text-white" style="background-color: #004d26;">
+                                <h5 class="modal-title font-weight-bold">{{ f.nom_filiere }}</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body p-4 text-dark" style="max-height: 75vh; overflow-y: auto;">
+                                
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-success text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-info-circle mr-2"></i> Description Complète
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.description|linebreaksbr }}</p>
+                                </div>
+
+                                {% if f.duree %}
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-dark text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-clock mr-2"></i> Durée de la formation
+                                    </h6>
+                                    <p class="small text-secondary">{{ f.duree }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if f.condition_acces %}
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-danger text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-clipboard-list mr-2"></i> Conditions d'accès / Admission
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.condition_acces|linebreaksbr }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if f.debouches %}
+                                <div class="mb-3">
+                                    <h6 class="font-weight-bold text-primary text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-briefcase mr-2"></i> Débouchés professionnels
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.debouches|linebreaksbr }}</p>
+                                </div>
+                                {% endif %}
+
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary font-weight-bold btn-sm" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+            <div class="text-center py-5 col-12">
+                <p class="lead text-muted">Le catalogue des Licences est en cours de mise à jour.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ================= SECTION 2 : MASTERS PROFESSIONNELS ================= -->
+<section class="py-5 bg-white border-top">
+    <div class="container">
+        <h2 class="h4 text-success font-weight-bold mb-4 border-left border-warning" style="border-left-width: 4px !important; padding-left: 1rem;">
+            Nos Masters Professionnels
+        </h2>
+
+        <!-- Grille de cartes pour les Masters -->
+        <div class="row">
+            {% for f in filieres %}
+                {% if "Master" in f.niveau %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0" style="border-bottom: 4px solid #004d26 !important; background-color: #f8f9fa;">
+                        <div class="card-body p-4 d-flex flex-column align-items-start">
+                            
+                            <!-- Badge du niveau d'études Master (Sombre stylisé) -->
+                            <div class="mb-3 w-100">
+                                <span class="badge badge-dark text-white p-2 font-weight-bold text-wrap text-left" style="white-space: normal; display: inline-block; width: 100%; font-size: 85%; background-color: #343a40;">
+                                    {{ f.niveau }}
+                                                                </span>
+                            </div>
+                            
+                            <!-- Titre de la filière Master -->
+                            <div class="w-100 mb-3" style="word-wrap: break-word; overflow-wrap: break-word;">
+                                <h5 class="card-title font-weight-bold text-dark m-0" style="white-space: normal; font-size: 1.2rem; line-height: 1.4;">
+                                    {{ f.nom_filiere }}
+                                </h5>
+                            </div>
+                            
+                            <!-- Description courte Master -->
+                            <p class="card-text text-secondary small flex-grow-1" style="line-height: 1.6;">
+                                {{ f.description }}
+                            </p>
+                        </div>
+                        
+                        <!-- Pied de carte avec bouton d'action Master -->
+                        <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                            <button class="btn btn-outline-success btn-sm w-100 font-weight-bold" data-toggle="modal" data-target="#modalMaster{{ f.id_filiere }}">
+                                Voir les détails
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FENÊTRE SURGISSANTE (MODALE MASTER) -->
+                <div class="modal fade" id="modalMaster{{ f.id_filiere }}" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header text-white" style="background-color: #004d26;">
+                                <h5 class="modal-title font-weight-bold">{{ f.nom_filiere }}</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body p-4 text-dark" style="max-height: 75vh; overflow-y: auto;">
+                                
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-success text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-info-circle mr-2"></i> Description Complète
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.description|linebreaksbr }}</p>
+                                </div>
+
+                                {% if f.duree %}
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-dark text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-clock mr-2"></i> Durée du cycle
+                                    </h6>
+                                    <p class="small text-secondary">{{ f.duree }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if f.condition_acces %}
+                                <div class="mb-4">
+                                    <h6 class="font-weight-bold text-danger text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-clipboard-list mr-2"></i> Conditions d'admission (Cours du soir)
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.condition_acces|linebreaksbr }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if f.debouches %}
+                                <div class="mb-3">
+                                    <h6 class="font-weight-bold text-primary text-uppercase small border-bottom pb-2">
+                                        <i class="fas fa-briefcase mr-2"></i> Frais, Inscriptions & Dossier
+                                    </h6>
+                                    <p class="small text-secondary" style="line-height: 1.7;">{{ f.debouches|linebreaksbr }}</p>
+                                </div>
+                                {% endif %}
+
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary font-weight-bold btn-sm" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+            <div class="text-center py-5 col-12">
+                <p class="lead text-muted">Le catalogue des Masters est en cours de mise à jour.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

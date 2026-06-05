@@ -1,0 +1,158 @@
+{% extends 'base.html' %} {# Liaison avec le gabarit de structure public pour conserver l'en-tête général du site #}
+{% load static %} {# Activation des outils de gestion des ressources statiques #}
+
+{% block title %}Mon Espace Étudiant - IBAM{% endblock %} {# Surcharge de l'onglet du navigateur pour l'intranet #}
+
+{% block content %} {# Ouverture du bloc éditorial principal #}
+<div class="container-fluid p-0">
+    <div class="row no-gutters">
+        
+        <!-- ==========================================
+           BARRE LATÉRALE GAUCHE : MENUS DE L'INTRANET
+           ========================================== -->
+        <!-- Fixée sous la double navbar publique de 153px de haut pour un ancrage parfait à l'écran -->
+        <div class="col-md-3 col-lg-2 text-white pt-4 pb-5 position-fixed" style="top: 153px; left: 0; bottom: 0; z-index: 1000; background-color: #004d26 !important; overflow-y: auto;">
+            
+            <!-- BLOC IDENTITÉ : Avatar textuel basé sur les 2 premières lettres de l'identifiant -->
+            <div class="text-center mb-4 border-bottom border-light pb-3 px-2">
+                <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center font-weight-bold mb-2 mx-auto" style="width: 50px; height: 50px; font-size: 1.2rem; line-height: 50px;">
+                    {{ request.user.username|slice:":2"|upper }} {# Découpage de la chaîne de caractères et mise en majuscule #}
+                </div>
+                <h6 class="mb-1 font-weight-bold text-truncate">{{ request.user.username }}</h6>
+                <span class="badge badge-warning text-dark font-weight-bold">Étudiant</span>
+            </div>
+            
+            <!-- LISTE DE NAVIGATION : Onglets et services de l'intranet -->
+            <ul class="nav flex-column mb-4 px-2">
+                <li class="nav-item mb-2">
+                    <a href="{% url 'dashboard:student_dashboard' %}" class="nav-link text-white bg-dark rounded active font-weight-bold">
+                        <i class="fas fa-th-large mr-2 text-warning"></i> Mon Espace
+                    </a>
+                </li>
+                
+                <!-- Lien vers le formulaire de modification de profil autonome -->
+                <li class="nav-item mb-2">
+                    <a href="{% url 'accounts:modifier_profil' %}" class="nav-link text-white rounded p-2 hover-sidebar font-weight-bold">
+                        <i class="fas fa-user-edit mr-2 text-warning"></i> Modifier mon profil
+                    </a>
+                </li>
+                                          
+               <!--<li class="nav-item mb-2">
+                    <a href="#" class="nav-link text-white rounded p-2 hover-sidebar">
+                        <i class="fas fa-book mr-2 text-warning"></i> Bibliothèque
+                    </a>
+                </li>--> 
+            </ul>
+            
+            <!-- BLOC DE SÉCURITÉ : Formulaire d'envoi POST pour la déconnexion de session -->
+            <div class="border-top border-light pt-3 mt-5 px-3">
+                <form action="{% url 'accounts:logout' %}" method="post">
+                    {% csrf_token %} {# Jeton de sécurité Django obligatoire contre les attaques de session #}
+                    <button type="submit" class="btn btn-outline-light btn-block btn-sm font-weight-bold rounded-pill">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==========================================
+           CONTENU DE DROITE : ZONE ÉDITORIALE DYNAMIQUE
+           ========================================== -->
+        <!-- Décalé via les classes 'offset' de la largeur exacte de la barre latérale pour éviter les superpositions -->
+        <div class="col-md-9 col-lg-10 p-4 bg-light offset-md-3 offset-lg-2" style="min-height: calc(100vh - 153px);">
+            
+            <!-- En-tête interne du portail -->
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h3 class="font-weight-bold text-dark mb-1">Espace Académique</h3>
+                    <p class="text-muted small mb-0">Bienvenue sur votre intranet sécurisé IBAM.</p>
+                </div>
+                <div class="badge badge-dark p-2 font-weight-bold">Session Étudiant Active</div>
+            </div>
+
+            <!-- MODULE DES CARTES STATISTIQUES (KPI ET RAPPELS EN DIRECT) -->
+            <div class="row mb-4">
+                <!-- CARTE 1 : Affichage de la formation d'origine de l'élève connecté -->
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded p-3 h-100 bg-white">
+                        <div class="card-body d-flex align-items-center p-2">
+                            <i class="fas fa-graduation-cap fa-2x text-success mr-3"></i>
+                            <div>
+                                <small class="text-muted text-uppercase d-block font-weight-bold">Ma Filière</small>
+                                <span class="font-weight-bold text-dark h6 mb-0">{{ request.user.filiere.nom_filiere|default:"Non assignée" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CARTE 2 : Alerte en direct du prochain cours planifié au calendrier -->
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded p-3 h-100 bg-white">
+                        <div class="card-body d-flex align-items-center p-2">
+                            <i class="fas fa-clock fa-2x text-warning mr-3"></i>
+                            <div>
+                                <small class="text-muted text-uppercase d-block font-weight-bold">Prochain Cours</small>
+                                <span class="font-weight-bold text-dark h6 mb-0">
+                                    {% if prochain_cours %}
+                                        {{ prochain_cours.nom_matiere }} ({{ prochain_cours.heure_debut|time:"H:i" }})
+                                    {% else %}
+                                        Aucun cours planifié
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CARTE 3 : Indicateur d'état des ressources documentaires -->
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded p-3 h-100 bg-white">
+                        <div class="card-body d-flex align-items-center p-2">
+                            <i class="fas fa-folder-open fa-2x text-info mr-3"></i>
+                            <div>
+                                <small class="text-muted text-uppercase d-block font-weight-bold">Bibliothèque</small>
+                                <span class="font-weight-bold text-dark h6 mb-0">0 ressource en ligne</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOC D'INFORMATIONS ET RÉCAPITULATIF DES DONNÉES DU COMPTE -->
+            <div class="row mb-4">
+                <!-- Section Gauche : Communiqués et notes officielles de la direction -->
+                <div class="col-lg-8 mb-3">
+                    <div class="card border-0 shadow-sm rounded p-4 bg-white h-100">
+                        <h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-bullhorn text-warning mr-2"></i>Notes & Communiqués Officiels</h5>
+                        <div class="alert alert-warning border-0 small py-3" role="alert">
+                            <h6 class="font-weight-bold mb-1">📢 Activation de votre espace numérique</h6>
+                            Conformément au périmètre du projet <strong>IBAM-WEB-2026</strong>, cet espace vous permettra de télécharger vos supports pédagogiques et de suivre l'évolution des emplois du temps de l'institut.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section Droite : Synthèse des informations personnelles d'identité -->
+                <div class="col-lg-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded p-4 bg-white h-100">
+                        <h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-id-card text-success mr-2"></i>Mes Données</h5>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li class="mb-2"><strong>Nom :</strong> {{ request.user.last_name|default:"Non renseigné" }}</li>
+                            <li class="mb-2"><strong>Prénom :</strong> {{ request.user.first_name|default:"Non renseigné" }}</li>
+                            <li class="mb-2"><strong>Identifiant :</strong> {{ request.user.username }}</li>
+                            <li class="mb-2"><strong>Type :</strong> Formation Initiale</li>
+                        </ul>
+                        
+                        <!-- Raccourci d'accès direct vers l'écran de mise à jour des coordonnées -->
+                        <div class="border-top pt-3">
+                            <a href="{% url 'accounts:modifier_profil' %}" class="btn btn-warning btn-sm btn-block font-weight-bold text-dark rounded-pill shadow-sm">
+                                <i class="fas fa-sync-alt mr-1"></i> Mettre à jour mon profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %} {# Fermeture de la zone d'intégration #}

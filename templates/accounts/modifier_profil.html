@@ -1,0 +1,125 @@
+{% extends 'base.html' %} {# Liaison avec le gabarit de base contenant les éléments structurels du site web #}
+
+{% block content %} {# Ouverture de l'espace éditorial dynamique #}
+
+<!-- ==========================================
+   BANNIÈRE / EN-TÊTE DE LA PAGE INSTITUTIONNELLE
+   ========================================== -->
+<!-- Jumbotron configuré aux couleurs officielles de l'établissement (Vert #004d26 et liseré Or #ffc107) -->
+<div class="jumbotron jumbotron-fluid text-white mb-4" style="background-color: #004d26; border-bottom: 5px solid #ffc107;">
+    <div class="container text-center py-2">
+        <!-- Icône de modification et titre principal de l'espace connecté -->
+        <h1 class="display-4 font-weight-bold"><i class="fas fa-user-edit text-warning mr-2"></i> Mon Profil Étudiant</h1>
+        <p class="lead">Mettez à jour vos informations personnelles pour rester en contact avec l'administration.</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <!-- ==========================================
+               GESTION DES NOTIFICATIONS FLASH (MESSAGES)
+               ========================================== -->
+            <!-- Boucle de traitement des notifications de succès ou d'échec générées par les vues Django (messages.success) -->
+            {% if messages %}
+                {% for message in messages %}
+                    <!-- La classe CSS s'adapte dynamiquement grâce à l'étiquette Django 'message.tags' (success, danger, info) -->
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                        {{ message }}
+                        <!-- Bouton permettant à l'utilisateur de fermer manuellement l'alerte à l'écran -->
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- ==========================================
+               CARTE PRINCIPALE ET FORMULAIRE DE SAISIE
+               ========================================== -->
+            <div class="card border-0 shadow-sm rounded-3" style="border-top: 4px solid #004d26 !important;">
+                <div class="card-body p-4">
+                    <h4 class="mb-4 text-secondary font-weight-bold">
+                        <i class="fas fa-id-card text-success mr-2"></i> Informations du compte
+                    </h4>
+
+                    <!-- BLOC DE RAPPEL : Données administratives non modifiables par l'étudiant -->
+                    <div class="row mb-4 bg-light p-3 rounded mx-1">
+                        <!-- Affichage de l'identifiant unique de session de l'utilisateur connecté -->
+                        <div class="col-sm-6 mb-2 mb-sm-0">
+                            <small class="text-muted d-block text-uppercase font-weight-bold">Identifiant (Username)</small>
+                            <span class="font-weight-bold text-dark">{{ user.username }}</span>
+                        </div>
+                        <!-- Affichage de sa filière d'affectation avec filtre de secours (default) si la valeur est absente -->
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block text-uppercase font-weight-bold">Filière d'étude</small>
+                            <span class="badge badge-success px-3 py-1 rounded-pill font-weight-bold mt-1" style="background-color: #004d26;">
+                                {{ user.filiere.nom_filiere|default:"Non spécifiée" }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- FORMULAIRE DE MISE À JOUR -->
+                    <form method="POST" action="">
+                        {% csrf_token %} {# Protection obligatoire contre les failles d'interception CSRF #}
+                        
+                        <!-- PREMIÈRE LIGNE : Données d'identité de l'étudiant -->
+                        <div class="form-row">
+                            <!-- Saisie du Prénom -->
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold small text-muted text-uppercase">Prénom</label>
+                                {{ form.first_name }} {# Injection native de la balise HTML générée par Forms.py #}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <!-- Saisie du Nom de Famille -->
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold small text-muted text-uppercase">Nom de famille</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- DEUXIÈME LIGNE : Coordonnées et canaux de communication -->
+                        <div class="form-row">
+                            <!-- Saisie de l'Adresse Electronique -->
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold small text-muted text-uppercase">Adresse E-mail</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <!-- Saisie du Numéro Téléphonique -->
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold small text-muted text-uppercase">Numéro de Téléphone</label>
+                                {{ form.telephone }}
+                                {% if form.telephone.errors %}
+                                    <div class="text-danger small mt-1">{{ form.telephone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- TROISIÈME LIGNE : Boutons de navigation et de soumission -->
+                        <div class="form-group d-flex justify-content-between align-items-center mt-4 pt-2">
+                            <!-- Lien d'annulation pointant vers la racine du site web -->
+                            <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="fas fa-arrow-left mr-1"></i> Retour
+                            </a>
+                            <!-- Bouton de type submit déclenchant la mise à jour des données en base -->
+                            <button type="submit" class="btn btn-warning font-weight-bold rounded-pill px-4 text-dark shadow-sm">
+                                <i class="fas fa-save mr-1"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {# Fermeture de l'espace éditorial #}

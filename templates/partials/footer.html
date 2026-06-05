@@ -1,0 +1,54 @@
+<footer class="footer-section bg-dark text-light pt-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- 1. Identité et Réseaux -->
+            <div class="col-lg-4">
+                <img src="/static/images/logos/logo_uts.png" alt="IBAM" height="60" class="mb-3">
+                <p class="text-muted small">Institut Burkinabè des Arts et Métiers. Former des cadres compétents pour les défis de demain.</p>
+                <div class="mt-3">
+                    <a href="https://facebook.com" target="_blank" class="text-warning me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://linkedin.com" target="_blank" class="text-warning me-3"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <!-- 2. Services en ligne (Besoins de l'Intranet reliés aux vraies routes Django) -->
+            <div class="col-lg-2">
+                <h6 class="text-white text-uppercase fw-bold mb-3">Services</h6>
+                <ul class="list-unstyled small">
+                    <!-- Programme des cours public -->
+                    <li class="mb-2"><a href="{% url 'academics:timetable_public' %}" class="text-muted text-decoration-none">Emplois du temps</a></li>
+                    <!-- Lien vers l'index du forum communautaire -->
+                    <li class="nav-item mb-2"><a href="{% url 'forum:index' %}" class="text-muted text-decoration-none">Forum d'entraide</a></li>
+                    <!-- Lien vers le Réseau des anciens étudiants -->
+                    <li class="mb-2"><a href="{% url 'academics:annuaire_alumni_public' %}" class="text-muted text-decoration-none">Espace Alumni</a></li>
+                </ul>
+            </div>
+
+            <!-- 3. Partenaires Institutionnels Réels (Obligation d'interopérabilité du CDC) -->
+            <div class="col-lg-2">
+                <h6 class="text-white text-uppercase fw-bold mb-3">Partenaires</h6>
+                <ul class="list-unstyled small">
+                    <!-- Plateforme nationale d'orientation des bacheliers -->
+                    <li class="mb-2"><a href="https://www.campusfaso.bf" target="_blank" class="text-muted text-decoration-none">Campus Faso</a></li>
+                    <!-- Université Joseph Ki-Zerbo (Université de tutelle de l'IBAM) -->
+                    <li class="mb-2"><a href="https://ujkz.bf" target="_blank" class="text-muted text-decoration-none">UJKZ</a></li>
+                    <!-- Ministère de l'Enseignement Supérieur, de la Recherche Scientifique et de l'Innovation -->
+                    <li class="mb-2"><a href="https://mesrsi.gov.bf" target="_blank" class="text-muted text-decoration-none">MESRSI</a></li>
+                </ul>
+            </div>
+
+            <!-- 4. Contact de l'Institut à Ouagadougou -->
+            <div class="col-lg-4">
+                <h6 class="text-white text-uppercase fw-bold mb-3">Contact</h6>
+                <p class="text-muted small mb-2"><i class="fas fa-map-marker-alt me-2 text-warning"></i> Avenue de l'Université, Campus de Zogona, Ouagadougou</p>
+                <p class="text-muted small mb-2"><i class="fas fa-envelope me-2 text-warning"></i> contact@ibam.ujkz.bf</p>
+                <p class="text-muted small"><i class="fas fa-phone me-2 text-warning"></i> +226 25 37 67 62</p>
+            </div>
+        </div>
+        
+        <!-- Mention Légale et Identifiant unique de projet du CDC -->
+        <div class="border-top border-secondary mt-5 py-3 text-center">
+            <p class="small text-muted mb-0">&copy; 2026 IBAM - Identifiant Projet : IBAM-WEB-2026</p>
+        </div>
+    </div>
+</footer>

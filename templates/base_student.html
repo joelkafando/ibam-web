@@ -1,0 +1,93 @@
+{% load static %} {# Initialisation du gestionnaire de liens pour les fichiers statiques (images, CSS, JS) #}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Framework CSS Bootstrap 4 assurant la cohérence graphique complète avec le reste du site web -->
+    <link rel="stylesheet" href="https://jsdelivr.net">
+    
+    <!-- Bibliothèque FontAwesome prenant en charge l'affichage vectoriel de l'ensemble des icônes du portail -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <!-- Liaisons vers vos feuilles de styles personnalisées (design global et spécificités intranet) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+    <title>Espace Étudiant | Portail IBAM</title>
+  </head>
+  <body class="bg-light">
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- ==========================================================================
+               BARRE LATÉRALE GAUCHE : NAVIGATION INTRANET DE L'ESPACE ÉTUDIANT
+               ========================================================================== -->
+            <!-- Colonne configurée sur le vert institutionnel officiel de l'IBAM (#004d26) sur toute la hauteur -->
+            <div class="col-md-3 col-lg-2 text-white p-3" style="min-height: 100vh; background-color: #004d26 !important;">
+                
+                <!-- Bloc d'en-tête de l'intranet : Titre et badge distinctif de scolarité -->
+                <div class="text-center mb-4 border-bottom border-light pb-3">
+                    <h5 class="mb-1 font-weight-bold text-warning" style="font-size: 1.1rem;">IBAM PORTAIL</h5>
+                    <span class="badge badge-light text-success font-weight-bold">Espace Étudiant</span>
+                </div>
+                
+                <!-- Liste des onglets d'accès aux différents services numériques de l'étudiant -->
+                <ul class="nav flex-column menu-admin">
+                    <!-- Onglet 1 : Vue générale du tableau de bord de l'étudiant connecté -->
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'dashboard:student_dashboard' %}" class="nav-link text-white active bg-dark rounded">
+                            <i class="fas fa-th-large mr-2"></i> Mon Espace
+                        </a>
+                    </li>
+                    <!-- Onglet 2 : Raccourci vers la consultation du planning des cours (Lien d'ancrage temporaire) -->
+                    <li class="nav-item mb-2">
+                        <a href="#" class="nav-link text-white rounded">
+                            <i class="fas fa-calendar-alt mr-2 text-warning"></i> Emploi du temps
+                        </a>
+                    </li>
+                    <!-- Onglet 3 : Accès aux ressources numériques ou supports de cours de la bibliothèque -->
+                    <li class="nav-item mb-2">
+                        <a href="#" class="nav-link text-white rounded">
+                            <i class="fas fa-book mr-2 text-warning"></i> Bibliothèque
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Section Basse : Commande sécurisée de fermeture de session via une méthode d'envoi POST -->
+                <div class="border-top border-light pt-3 mt-4">
+                    <form action="{% url 'accounts:logout' %}" method="post">
+                        {% csrf_token %} {# Jeton obligatoire pour faire échec aux failles d'interception CSRF #}
+                        <button type="submit" class="btn btn-outline-light btn-block btn-sm font-weight-bold">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ==========================================================================
+               ESPACE DE CONTENU DROIT : POINT D'INJECTION DES COMPOSANTS ÉTUDIANTS
+               ========================================================================== -->
+            <!-- Zone de travail principale destinée à afficher dynamiquement les informations du portail -->
+            <div class="col-md-9 col-lg-10 p-4">
+                {% block student_content %}
+                {# Cet espace accueillera le code de vos templates enfants comme student_dashboard.html #}
+                {% endblock %}
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       SCRIPTS JAVASCRIPT ET DEPENDANCES DE L'INTERFACE UTILISATEUR
+       ========================================================================== -->
+    <!-- Librairies de script externes chargées de piloter l'UI, le rendu adaptatif et les animations -->
+    <script src="https://jquery.com"></script>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
+    <!-- Script de logique utilisateur global interne au projet -->
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

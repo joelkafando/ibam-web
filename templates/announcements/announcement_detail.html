@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ announcement.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row no-gutters shadow-sm" style="min-height: 80vh;">
+        
+        <!-- 1. Moitié Gauche : L'Image -->
+        <div class="col-md-6">
+            {% if announcement.image %}
+                <div style="background-image: url('{{ announcement.image.url }}'); 
+                            background-size: cover; 
+                            background-position: center; 
+                            height: 100%; 
+                            min-height: 400px;">
+                </div>
+            {% else %}
+                <div class="bg-dark d-flex align-items-center justify-content-center text-white" style="height: 100%;">
+                    <i class="fas fa-image fa-4x opacity-25"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 2. Moitié Droite : Le Contenu -->
+        <div class="col-md-6 bg-white d-flex align-items-center">
+            <div class="p-5 w-100">
+                <span class="badge badge-warning text-white px-3 py-2 mb-3">
+                    {{ announcement.get_category_display }}
+                </span>
+                
+                <h1 class="font-weight-bold display-4" style="color: var(--uts-dark);">
+                    {{ announcement.title }}
+                </h1>
+                
+                <p class="text-muted">
+                    <i class="far fa-calendar-alt mr-2"></i>Publié le {{ announcement.date_published|date:"d F Y" }}
+                </p>
+                
+                <hr class="my-4" style="width: 50px; border-top: 3px solid var(--uts-red); margin-left: 0;">
+
+                <div class="article-content lead text-justify mb-4" style="color: #444;">
+                    {{ announcement.content|linebreaks }}
+                </div>
+
+                <!-- Document Joint (Module 2.2.3) -->
+                {% if announcement.file %}
+                <div class="p-3 bg-light border-left border-danger rounded shadow-sm">
+                    <h6 class="font-weight-bold">Communiqué officiel :</h6>
+                    <a href="{{ announcement.file.url }}" class="btn btn-outline-danger btn-sm mt-2" target="_blank">
+                        <i class="fas fa-file-pdf mr-2"></i> Télécharger le PDF
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="mt-5">
+                    <a href="{% url 'announcements:announcements' %}" class="btn btn-link text-dark p-0 font-weight-bold">
+                        <i class="fas fa-arrow-left mr-2"></i> Retour aux actualités
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

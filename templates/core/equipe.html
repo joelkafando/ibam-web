@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Équipe Dirigeante & Gouvernance - IBAM{% endblock %}
+
+{% block content %}
+<!-- Header Institutionnel Vert et Or -->
+<div class="jumbotron jumbotron-fluid text-white mb-0" style="background-color: #004d26; border-bottom: 5px solid #ffc107;">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 small text-uppercase font-weight-bold">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-warning">Accueil</a></li>
+                <li class="breadcrumb-item text-white active" aria-current="page">Gouvernance</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 font-weight-bold">Équipe Dirigeante</h1>
+        <p class="lead text-warning font-weight-bold mb-0">L'administration et les instances de décision qui guident l'excellence de l'institut.</p>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Organisation & Organes de Direction -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm p-4 rounded bg-white h-100">
+                    <p class="lead font-weight-bold text-dark border-left border-success pl-3" style="border-width: 4px !important; text-align: justify;">
+                        La direction de l'Institut Burkinabè des Arts et des Métiers (IBAM) assure le pilotage stratégique, la gestion académique et l'administration des différentes filières professionnelles en étroite collaboration avec le corps professoral et les partenaires économiques.
+                    </p>
+                    <hr class="my-4">
+                    
+                    <h5 class="font-weight-bold text-dark mb-4"><i class="fas fa-users text-success mr-2"></i> Les Membres de la Direction</h5>
+                    
+                    <!-- Trombinoscope / Liste de l'équipe -->
+                    <div class="row text-secondary">
+                        <!-- Directeur -->
+                        <div class="col-sm-6 mb-4">
+                            <div class="p-3 border rounded shadow-sm bg-light">
+                                <h6 class="font-weight-bold text-dark mb-1">Dr. Gilbert BAYILI</h6>
+                                <span class="badge badge-success mb-2" style="background-color: #004d26;">Directeur</span>
+                                <p class="small text-muted mb-0"><i class="far fa-envelope mr-1"></i> Direction générale et orientations stratégiques.</p>
+                            </div>
+                        </div>
+
+                        <!-- Directeur Adjoint -->
+                        <div class="col-sm-6 mb-4">
+                            <div class="p-3 border rounded shadow-sm bg-light">
+                                <h6 class="font-weight-bold text-dark mb-1">Dr. S. Jean-Gabriel OUÉDRAOGO</h6>
+                                <span class="badge badge-success mb-2" style="background-color: #004d26;">Directeur Adjoint</span>
+                                <p class="small text-muted mb-0"><i class="far fa-envelope mr-1"></i> Coordination des affaires pédagogiques et des examens.</p>
+                            </div>
+                        </div>
+
+                        <!-- Chef de Service Scolarité -->
+                        <div class="col-sm-6 mb-4">
+                            <div class="p-3 border rounded shadow-sm bg-light">
+                                <h6 class="font-weight-bold text-dark mb-1">M. Ousmane COMPAORÉ</h6>
+                                <span class="badge badge-secondary mb-2">Chef de Service Scolarité</span>
+                                <p class="small text-muted mb-0"><i class="far fa-envelope mr-1"></i> Gestion des inscriptions, cartes d'étudiants et archives.</p>
+                            </div>
+                        </div>
+
+                        <!-- Secrétaire Principale -->
+                        <div class="col-sm-6 mb-4">
+                            <div class="p-3 border rounded shadow-sm bg-light">
+                                <h6 class="font-weight-bold text-dark mb-1">Mme Aminata SAWADOGO</h6>
+                                <span class="badge badge-secondary mb-2">Secrétaire de Direction</span>
+                                <p class="small text-muted mb-0"><i class="far fa-envelope mr-1"></i> Accueil, traitement du courrier et secrétariat administratif.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Droite : Infos et Horaires Direction -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm p-4 rounded text-white h-100" style="background-color: #004d26;">
+                    <h5 class="font-weight-bold text-warning mb-4">
+                        <i class="fas fa-user-shield mr-2"></i> Bureau de la Direction
+                    </h5>
+                    
+                    <div class="small mb-4" style="opacity: 0.9; line-height: 1.7;">
+                        <p class="font-weight-bold mb-1"><i class="fas fa-map-marker-alt mr-2 text-warning"></i> Localisation :</p>
+                        <p>Bâtiment administratif de l'IBAM, rez-de-chaussée, Campus Universitaire Joseph KI-ZERBO.</p>
+                    </div>
+
+                    <div class="small mb-4" style="opacity: 0.9; line-height: 1.7;">
+                        <p class="font-weight-bold mb-1"><i class="far fa-clock mr-2 text-warning"></i> Audiences du Directeur :</p>
+                        <p class="mb-0">Mardi et Jeudi : 09h00 — 12h00</p>
+                        <p class="text-warning small font-italic">* Prendre rendez-vous auprès du secrétariat.</p>
+                    </div>
+
+                    <div class="small" style="opacity: 0.9; line-height: 1.7;">
+                        <p class="font-weight-bold mb-1"><i class="fas fa-info-circle mr-2 text-warning"></i> Rôle de l'organe :</p>
+                        <p class="mb-0">La Direction exécute les délibérations du Conseil d'Institut, valide l'affectation des enseignants pour les cours du jour et du soir, et supervise la cellule d'insertion professionnelle.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

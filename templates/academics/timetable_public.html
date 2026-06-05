@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emplois du Temps Publics - IBAM{% endblock %}
+
+{% block content %}
+<div class="container py-5 bg-light" style="max-width: 1400px;">
+    
+    <!-- Formulaire d'action et de filtrage pour le grand public -->
+    <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded">
+        <h4 class="font-weight-bold text-dark mb-3" style="font-size: 1.25rem;">
+            <i class="fas fa-search text-success mr-2"></i> Consulter les Plannings de l'IBAM
+        </h4>
+        <form method="GET" action="{% url 'academics:timetable_public' %}" class="form-inline">
+            <!-- 1. Sélection de la Filière -->
+            <div class="form-group mr-3 my-2" style="width: 100%; max-width: 400px;">
+                <select name="filiere_id" class="form-control w-100 custom-select border-success" required>
+                    <option value="" disabled {% if not filiere_selectionnee %}selected{% endif %}>-- Sélectionnez une filière universitaire --</option>
+                    {% for f in filieres %}
+                        <option value="{{ f.id_filiere }}" {% if filiere_selectionnee.id_filiere == f.id_filiere %}selected{% endif %}>
+                            {{ f.nom_filiere }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- 2. Sélection du Niveau d'études -->
+            <div class="form-group mr-3 my-2" style="width: 100%; max-width: 300px;">
+                <select name="niveau_etude" class="form-control w-100 custom-select border-success" required>
+                    <option value="" disabled {% if not niveau_selectionne %}selected{% endif %}>-- Sélectionnez le niveau --</option>
+                    {% for niveau in choices_niveau %}
+                        <option value="{{ niveau }}" {% if niveau_selectionne == niveau %}selected{% endif %}>
+                            {{ niveau }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn text-white font-weight-bold my-2 px-4" style="background-color: #004d26;">
+                Rechercher le planning
+            </button>
+        </form>
+    </div>
+
+    <!-- ZONE D'AFFICHAGE DE LA GRILLE MATRICIELLE OFFICIELLE -->
+    {% if filiere_selectionnee %}
+    <div class="card border-0 shadow-sm rounded p-4 bg-white">
+        
+        <!-- Bandeau d'en-tête dynamique -->
+        <div class="text-center mb-4 py-2 border rounded shadow-sm bg-white" style="border-top: 4px solid #ffc107 !important;">
+            <h5 class="font-weight-bold text-dark mb-1" style="font-size: 1.15rem; letter-spacing: 0.3px;">
+                SECTION {{ filiere_selectionnee.nom_filiere|upper }}
+            </h5>
+            <p class="text-muted small font-weight-bold mb-0 text-uppercase">
+                Semaine des cours universitaires officiels — <span class="text-success">{{ niveau_selectionne }}</span> ({{ periode_semaine|upper }})
+            </p>
+        </div>
+
+            <!-- Tableau Matriciel Pleine Largeur -->
+            <div class="table-responsive">
+                <table class="table table-bordered text-center m-0" style="border: 2px solid #dee2e6; width: 100%;">
+                    <!-- Entête des Jours -->
+                    <thead class="text-dark font-weight-bold" style="background-color: #f8f9fa; font-size: 1.1rem;">
+                        <tr>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Lundi</th>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Mardi</th>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Mercredi</th>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Jeudi</th>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Vendredi</th>
+                            <th style="width: 16.66%; min-width: 150px;" class="py-3">Samedi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- LIGNE 1 : LES COURS DE LA MATINÉE (<= 12:30) -->
+                        <tr>
+                            <!-- Lundi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'LUNDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Mardi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'MARDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Mercredi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'MERCREDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Jeudi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'JEUDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Vendredi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'VENDREDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Samedi Matin -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'SAMEDI' and cours.heure_debut|time:"H:i" <= "12:30" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+
+                        <!-- LIGNE 2 : LES COURS DE L'APRÈS-MIDI (>= 13:00) -->
+                        <tr>
+                            <!-- Lundi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'LUNDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Mardi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'MARDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Mercredi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'MERCREDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Jeudi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'JEUDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Vendredi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'VENDREDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Samedi Après-midi -->
+                            <td class="p-3 align-middle bg-white" style="height: 150px;">
+                                {% for cours in emplois %}
+                                    {% if cours.jour == 'SAMEDI' and cours.heure_debut|time:"H:i" >= "13:00" %}
+                                        <div class="font-weight-bold text-success small mb-1">{{ cours.heure_debut|time:"H:i" }}-{{ cours.heure_fin|time:"H:i" }}</div>
+                                        <div class="font-weight-bold text-dark small mb-1">{{ cours.nom_matiere }}</div>
+                                        <div class="text-muted font-italic real-small mb-1">{{ cours.enseignant }}</div>
+                                        <div class="badge badge-light border text-secondary font-weight-bold p-1 px-2 mt-1">(Salle {{ cours.salle }})</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <!-- État initial sans sélection de filière -->
+        <div class="text-center py-5 bg-white shadow-sm rounded border">
+            <i class="far fa-calendar-alt fa-3x text-muted mb-3"></i>
+            <p class="lead font-weight-bold text-secondary mb-0">Sélectionnez une filière de l'IBAM ci-dessus pour afficher sa grille de cours hebdomadaire.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .real-small { font-size: 0.8rem; line-height: 1.2; }
+    table.table-bordered th, table.table-bordered td { border: 1px solid #dee2e6 !important; }
+</style>
+{% endblock %}

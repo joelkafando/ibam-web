@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Bouton de retour -->
+    <a href="{% url 'forum:index' %}" class="btn btn-outline-secondary btn-sm rounded-pill mb-4">
+        <i class="fas fa-arrow-left mr-1"></i> Retour au Forum
+    </a>
+
+    <!-- Affichage du Message d'Origine -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white mb-4" style="border-left: 5px solid #ffc107 !important;">
+        <div class="card-body p-4">
+            <span class="badge badge-success px-3 py-1 rounded-pill mb-2" style="background-color: #004d26;">{{ sujet.categorie.nom }}</span>
+            <h3 class="font-weight-bold text-dark mb-3">{{ sujet.titre }}</h3>
+            <p class="text-secondary" style="white-space: pre-line;">{{ sujet.message_origine }}</p>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+                <span><i class="fas fa-user mr-1 text-success"></i> Publié par <strong>{{ sujet.auteur.username }}</strong></span>
+                <span><i class="fas fa-calendar-alt mr-1"></i> Le {{ sujet.date_creation|date:"d M Y à H:i" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Réponses / Commentaires -->
+    <h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-reply-all text-success mr-2"></i> Réponses ({{ reponses.count }})</h5>
+    
+    {% for reponse in reponses %}
+    <div class="card border-0 shadow-sm rounded-3 bg-white mb-3 ml-md-4">
+        <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                <span class="small font-weight-bold text-dark"><i class="fas fa-user-circle mr-1 text-muted"></i> {{ reponse.auteur.username }}</span>
+                <span class="small text-muted">{{ reponse.date_publication|date:"d M Y à H:i" }}</span>
+            </div>
+            <p class="text-secondary small mb-0" style="white-space: pre-line;">{{ reponse.contenu }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-light border shadow-sm rounded-3 text-center py-3 mb-4 ml-md-4 text-muted">
+        Aucune réponse pour le moment. Soyez le premier à répondre à {{ sujet.auteur.username }} !
+    </div>
+    {% endfor %}
+
+    <!-- Formulaire d'ajout de réponse -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white mt-4 ml-md-4">
+        <div class="card-body p-4">
+            <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-comment-dots text-warning mr-2"></i> Ajouter votre commentaire</h6>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    {{ form.contenu }}
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn text-white font-weight-bold rounded-pill px-4" style="background-color: #004d26;">
+                        <i class="fas fa-paper-plane mr-1"></i> Envoyer la réponse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

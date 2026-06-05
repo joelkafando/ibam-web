@@ -1,0 +1,47 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100" style="width: 280px; min-height: 100vh; background-color: #002b15 !important;">
+    <!-- En-tête Profil -->
+    <div class="text-center mb-4 border-bottom border-secondary pb-3">
+        <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-2" style="width: 60px; height: 60px; font-size: 1.5rem;">
+            {{ request.user.username|slice:":2"|upper }}
+        </div>
+        <h6 class="mb-0 fw-bold">{{ request.user.get_full_name|default:request.user.username }}</h6>
+        <span class="badge bg-success mt-1" style="background-color: #004d26 !important;">Étudiant</span>
+        {% if request.user.filiere %}
+            <p class="small text-muted mt-1 mb-0">{{ request.user.filiere.nom_filiere }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Liens de Navigation -->
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-2">
+            <a href="{% url 'dashboard:student_dashboard' %}" class="nav-link active text-white" style="background-color: #004d26;">
+                <i class="fas fa-th-large me-2"></i> Vue d'ensemble
+            </a>
+        </li>
+        <li class="mb-2">
+            <a href="#" class="nav-link text-light-hover text-white">
+                <i class="fas fa-calendar-alt me-2 text-warning"></i> Emploi du temps
+            </a>
+        </li>
+        <li class="mb-2">
+            <a href="#" class="nav-link text-light-hover text-white">
+                <i class="fas fa-book me-2 text-warning"></i> Bibliothèque Numérique
+            </a>
+        </li>
+        <li class="mb-2">
+            <a href="#" class="nav-link text-light-hover text-white">
+                <i class="fas fa-comments me-2 text-warning"></i> Forum Communautaire
+            </a>
+        </li>
+    </ul>
+    
+    <!-- Déconnexion -->
+    <div class="border-top border-secondary pt-3">
+        <form action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger w-100 rounded-pill btn-sm fw-bold">
+                <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {# Injection du design global (en-tête, pied de page) défini dans le fichier parent standard #}
+{% load static %} {# Chargement du module Django permettant de pointer vers les fichiers multimédias, CSS et JS statiques #}
+
+{% block content %} {# Ouverture du bloc principal destiné à remplacer le conteneur éditorial de base.html #}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Centrage horizontal de la boîte de connexion sur une largeur de 5 colonnes Bootstrap sur 12 -->
+        <div class="col-md-5">
+            <!-- Boîtier graphique en forme de carte, ombré et sans bordures d'usine pour un rendu moderne -->
+            <div class="card shadow border-0 p-4">
+                <div class="card-body">
+                    <!-- En-tête textuel incitant l'utilisateur à s'identifier -->
+                    <div class="text-center mb-4">
+                        <h4 class="font-weight-bold text-dark">Portail Numérique</h4>
+                        <p class="text-muted small">Connectez-vous à votre espace personnel</p>
+                    </div>
+
+                    <!-- Déclaration du formulaire (Méthode POST obligatoire pour la transmission sécurisée des identifiants) -->
+                    <form method="post" novalidate>
+                        {% csrf_token %} {# Jeton de sécurité Django obligatoire contre les failles CSRF (Cross-Site Request Forgery) #}
+                        
+                        <!-- BLOC D'ALERTES : S'affiche uniquement en cas d'erreur globale (ex: mauvais mot de passe) -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger small py-2">
+                            <!-- Parcours et affichage propre de chaque message d'erreur généré par l'authentification -->
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- CHAMP Saisie 1 : Identifiant de connexion -->
+                        <div class="form-group mb-3">
+                            <label class="small font-weight-bold text-muted">Nom d'utilisateur</label>
+                            <!-- L'attribut 'name="username"' est obligatoire pour correspondre aux attentes de l'objet LoginView de Django -->
+                            <input type="text" name="username" required class="form-control" placeholder="Ex: etudiant_test">
+                        </div>
+
+                        <!-- CHAMP Saisie 2 : Mot de passe -->
+                        <div class="form-group mb-4">
+                            <label class="small font-weight-bold text-muted">Mot de passe</label>
+                            <!-- L'attribut 'name="password"' est obligatoire pour valider la clé secrète du compte -->
+                            <input type="password" name="password" required class="form-control" placeholder="••••••••">
+                        </div>
+
+                        <!-- BOUTON DE SOUMISSION : Déclenche l'envoi du formulaire avec la couleur verte de l'IBAM (#004d26) -->
+                        <button type="submit" class="btn btn-block text-white font-weight-bold" style="background-color: #004d26;">
+                            Se connecter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {# Fermeture du bloc de contenu #}

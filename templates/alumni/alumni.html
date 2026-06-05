@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- En-tête de la page aux couleurs de l'institut -->
+<div class="jumbotron jumbotron-fluid text-white mb-4" style="background-color: #004d26; border-bottom: 5px solid #ffc107;">
+    <div class="container text-center py-2">
+        <h1 class="display-4 font-weight-bold"><i class="fas fa-user-graduate text-warning mr-2"></i> Réseau des Alumni - IBAM</h1>
+        <p class="lead">Restez en contact avec la communauté des diplômés et suivez l'insertion professionnelle de l'institut.</p>
+    </div>
+</div>
+
+<div class="container my-4">
+    <!-- Bouton de bascule vers le forum communautaire -->
+<div class="row mb-4">
+    <div class="col-12 text-right">
+        <a href="{% url 'forum:index' %}" class="btn btn-success font-weight-bold rounded-pill shadow-sm" style="background-color: #004d26;">
+            <i class="fas fa-comments mr-2 text-warning"></i> Accéder au Forum d'entraide
+        </a>
+    </div>
+</div>
+
+    <!-- BLOC DES FILTRES DE RECHERCHE -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4 bg-light">
+        <div class="card-body">
+            <form method="GET" class="form-row align-items-end">
+                <!-- Recherche par Nom/Prénom -->
+                <div class="form-group col-md-5 mb-md-0">
+                    <label class="font-weight-bold small text-uppercase text-muted">Rechercher un diplômé</label>
+                    <input type="text" name="q" class="form-control rounded-pill" placeholder="Saisir un nom ou un prénom..." value="{{ recherche_nom|default:'' }}">
+                </div>
+                <!-- Recherche par Filière d'étude -->
+                <div class="form-group col-md-4 mb-md-0">
+                    <label class="font-weight-bold small text-uppercase text-muted">Filtrer par Filière</label>
+                    <select name="filiere_id" class="form-control rounded-pill">
+                        <option value="">-- Toutes les filières --</option>
+                        {% for f in filieres %}
+                            <option value="{{ f.pk }}" {% if filiere_selectionnee_id == f.pk|stringformat:"s" %}selected{% endif %}>{{ f.nom_filiere }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Bouton de validation -->
+                <div class="form-group col-md-3 mb-0">
+                    <button type="submit" class="btn btn-warning font-weight-bold btn-block rounded-pill text-dark">
+                        <i class="fas fa-search mr-1"></i> Filtrer le réseau
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GRILLE D'AFFICHAGE DES CARTES DE PROFIL -->
+    <h4 class="mb-4 text-secondary font-weight-bold"><i class="fas fa-users text-success mr-2"></i> Membres enregistrés</h4>
+    
+    <div class="row">
+        {% if diplomes %}
+            {% for diplome in diplomes %}
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-3 rounded-3" style="border-top: 4px solid #004d26 !important;">
+                    <div class="my-3">
+                        <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                    </div>
+                    <!-- Identité de l'Alumni -->
+<!-- Si le prénom ou le nom existe, on l'affiche. Sinon, on affiche l'identifiant (Username) -->
+                   <h5 class="card-title font-weight-bold text-dark mb-1">
+                       {% if diplome.first_name or diplome.last_name %}
+                           {{ diplome.first_name }} {{ diplome.last_name|upper }}
+                         {% else %}
+                         {{ diplome.username }}
+                        {% endif %}
+                    </h5>
+                    
+                    <!-- Badge de sa filière d'origine à l'IBAM -->
+                    <span class="badge badge-success px-3 py-2 rounded-pill mx-auto mb-3 small" style="background-color: #004d26;">
+                        {{ diplome.filiere.nom_filiere|default:"Diplômé IBAM" }}
+                    </span>
+                    
+                    <div class="text-muted small mb-3">
+                        <i class="fas fa-envelope mr-1 text-warning"></i> {{ diplome.email|default:"Non partagé" }}
+                    </div>
+                    
+                    <!-- Bouton d'action de contact -->
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <a href="mailto:{{ diplome.email }}" class="btn btn-outline-success btn-sm btn-block rounded-pill">
+                            <i class="fas fa-paper-plane mr-1"></i> Envoyer un message
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Cas où la recherche ne retourne aucun profil -->
+            <div class="col-12">
+                <div class="alert alert-info text-center py-4 border-0 shadow-sm">
+                    <i class="fas fa-user-slash fa-2x d-block mb-2 text-info"></i>
+                    Aucun ancien élève ne correspond à vos critères de recherche actuellement.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

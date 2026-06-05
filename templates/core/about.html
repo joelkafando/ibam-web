@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Présentation & Missions - IBAM{% endblock %}
+
+{% block content %}
+<!-- Section Hero / Bannière -->
+<div class="jumbotron jumbotron-fluid text-white mb-0" style="background: linear-gradient(rgba(0, 77, 38, 0.85), rgba(0, 77, 38, 0.95)), url('{% static 'images/campus/campus_bg.jpg' %}') center/cover; padding: 4rem 0;">
+    <div class="container text-center">
+        <h1 class="display-4 font-weight-bold text-uppercase" style="letter-spacing: 1px; font-size: 2.3rem;">Qui sommes-nous ?</h1>
+        <p class="lead font-weight-light">Découvrez l'histoire, la mission et les ambitions d'excellence de l'IBAM.</p>
+        <div class="mx-auto" style="width: 80px; height: 4px; background-color: #ffc107; border-radius: 2px;"></div>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 1200px;">
+    
+    <!-- SECTION 1 : MOT DU DIRECTEUR -->
+    <div class="row align-items-center mb-5 pb-4">
+        <!-- Photo du Directeur -->
+        <div class="col-md-4 text-center mb-4 mb-md-0">
+            <div class="position-relative d-inline-block">
+                <img src="{% static 'images/hero/Directeur.png' %}" alt="Directeur de l'IBAM" class="img-fluid rounded shadow" style="max-height: 320px; border-bottom: 5px solid #004d26;">
+                <div class="bg-dark text-white font-weight-bold py-2 px-3 rounded shadow-sm position-absolute w-100" style="bottom: -15px; left: 0; font-size: 0.85rem; opacity: 0.9;">
+                    Dr. Gilbert BAYILI <br><span class="text-warning small font-weight-light">Directeur de l'IBAM</span>
+                </div>
+            </div>
+        </div>
+        <!-- Contenu du Message -->
+        <div class="col-md-8 pl-md-5 mt-3 mt-md-0">
+            <h3 class="font-weight-bold mb-3" style="color: #004d26;">Le Mot du Directeur</h3>
+            <p class="text-secondary" style="line-height: 1.7; text-align: justify;">
+                Chers étudiants, chers partenaires, bienvenue sur la plateforme officielle de l'<strong>Institut Burkinabè des Arts et des Métiers (IBAM)</strong> de l'Université Joseph KI-ZERBO. Depuis notre création en janvier 2000, notre ambition demeure inchangée : former des cadres moyens et supérieurs immédiatement opérationnels, capables de relever les défis de l'administration publique et privée du Burkina Faso et de la sous-région. 
+            </p>
+            <p class="text-secondary" style="line-height: 1.7; text-align: justify;">
+                À l'ère de la transformation numérique, nous mettons un point d'honneur à allier rigueur théorique et immersion professionnelle à travers un catalogue diversifié de formations d'excellence en gestion et en technologies. Notre slogan « Excellence - Professionnalisme - Emploi » est le reflet de notre engagement quotidien envers votre réussite.
+            </p>
+        </div>
+    </div>
+
+        <div class="col-md-12 mb-8">
+            <div class="card border-0 shadow-sm p-4 bg-white h-100" style="border-top: 4px solid #004d26 !important;">
+                <h4 class="font-weight-bold mb-3 text-dark"><i class="fas fa-bullseye text-success mr-2"></i> Nos Missions</h4>
+                <p class="text-secondary small" style="line-height: 1.6; text-align: justify;">
+                    La mission principale de l'IBAM consiste à combler l'inadéquation entre l'offre académique et les exigences changeantes des entreprises burkinabè et internationales. Nous nous engageons à offrir des programmes de formation ancrés dans la pratique, à consolider l'employabilité des jeunes diplômés par des partenariats actifs, et à fournir aux structures publiques, privées et aux ONG, un potentiel humain hautement qualifié.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3 : APPERÇU RAPIDE DE L'OFFRE ACADÉMIQUE -->
+    <div class="text-center mb-4">
+        <h4 class="font-weight-bold text-dark mb-2">Nos Domaines de Compétences</h4>
+        <p class="text-muted small">Un cursus moderne structuré selon les normes du système LMD.</p>
+    </div>
+
+    <div class="row">
+        <!-- Cycle Licence -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm p-4 bg-light h-100">
+                <h5 class="font-weight-bold text-success mb-3"><i class="fas fa-certificate mr-2"></i> Formations en Licence</h5>
+                <p class="text-secondary small">Cinq filières majeures adaptées aux bacheliers (Séries C, D, E, G2 etc.) :</p>
+                <div class="list-group list-group-flush rounded shadow-sm">
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Comptabilité-Contrôle-Audit (CCA)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Assurance-Banque-Finance (ABF)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Marketing et Gestion (MG)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Assistance de Direction Bilingue (ADB)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Méthodes Informatiques Appliquées (MIAGE)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cycle Master -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm p-4 bg-light h-100">
+                <h5 class="font-weight-bold text-success mb-3"><i class="fas fa-user-graduate mr-2"></i> Formations en Master</h5>
+                <p class="text-secondary small">Trois programmes d'excellence dispensés principalement en cours du soir :</p>
+                <div class="list-group list-group-flush rounded shadow-sm">
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Master Comptabilité-Contrôle-Audit (MCCA)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Master Banque Finance (MBF)</div>
+                    <div class="list-group-item bg-white py-2 small text-dark font-weight-bold"><i class="fas fa-caret-right text-success mr-2"></i> Master Méthodes Informatiques (M-MIAGE)</div>
+                </div>
+                <div class="text-right mt-3">
+                    <a href="{% url 'formations' %}" class="btn btn-sm text-white font-weight-bold" style="background-color: #004d26;">
+                        Voir les détails des filières <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

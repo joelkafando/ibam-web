@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historique de l'IBAM - Université Joseph KI-ZERBO{% endblock %}
+
+{% block content %}
+<!-- Header Institutionnel Vert et Or -->
+<div class="jumbotron jumbotron-fluid text-white mb-0" style="background-color: #004d26; border-bottom: 5px solid #ffc107;">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 small text-uppercase font-weight-bold">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-warning">Accueil</a></li>
+                <li class="breadcrumb-item text-white active" aria-current="page">L'IBAM</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 font-weight-bold">Historique de l'IBAM</h1>
+        <p class="lead text-warning font-weight-bold mb-0">Plus de deux décennies d'engagement pour la professionnalisation au Burkina Faso.</p>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Historique Principal -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm p-4 rounded bg-white h-100">
+                    <p class="lead font-weight-bold text-dark border-left border-success pl-3" style="border-width: 4px !important; text-align: justify;">
+                        Créé dans la dynamique de la grande refondation universitaire de l'Université de Ouagadougou, l’Institut Burkinabè des Arts et des Métiers (IBAM) est né d'une volonté forte d'adapter l'enseignement supérieur aux exigences du marché de l'emploi [1].
+                    </p>
+                    <hr class="my-4">
+                    
+                    <div class="text-secondary" style="line-height: 1.8; font-size: 1.05rem; text-align: justify;">
+                        <p>
+                            L'IBAM a officiellement ouvert ses portes au début de l'année 2000. Face au chômage grandissant des diplômés des filières dites "classiques" ou théoriques, les autorités universitaires et ministérielles ont conçu cet institut comme une solution concrète pour offrir des formations professionnalisantes courtes et immédiatement applicables en entreprise [1].
+                        </p>
+                        <p>
+                            Dès ses premières années, l'institut s'est distingué par une sélection rigoureuse et une immersion rapide des étudiants dans le monde professionnel grâce à des stages obligatoires. Les filières pionnières de gestion (Comptabilité, Banque-Finance) et technologiques (Informatique de gestion) ont immédiatement suscité la confiance des banques, des assurances et des administrations publiques burkinabè [1].
+                        </p>
+                        <p>
+                            En 2009, l'IBAM franchit un cap majeur en adaptant l'ensemble de ses programmes au système Licence-Master-Doctorat (LMD), consolidant ainsi la reconnaissance internationale de ses diplômes par le CAMES. Aujourd'hui rattaché à l'Université Joseph KI-ZERBO, l'institut continue de moderniser ses outils pour maintenir son statut de pôle d'excellence en Afrique de l'Ouest [1].
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Droite : Dates Clés Statiques -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm p-4 rounded text-white h-100" style="background-color: #111;">
+                    <h5 class="font-weight-bold text-warning mb-4">
+                        <i class="fas fa-history mr-2"></i> Chronologie & Repères
+                    </h5>
+                    
+                    <div class="mb-4">
+                        <span class="badge badge-warning text-dark font-weight-bold mb-2">Janvier 2000</span>
+                        <p class="small mb-0" style="opacity: 0.8;">Création officielle de l'IBAM et accueil des premières promotions d'étudiants [1].</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="badge badge-warning text-dark font-weight-bold mb-2">Année 2009</span>
+                        <p class="small mb-0" style="opacity: 0.8;">Application de la réforme du système LMD validée par les instances académiques du CAMES [1].</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="badge badge-warning text-dark font-weight-bold mb-2">Année 2015</span>
+                        <p class="small mb-0" style="opacity: 0.8;">L'Université de Ouagadougou prend le nom d'Université Joseph KI-ZERBO, ancrant l'institut dans cette transition mémorielle.</p>
+                    </div>
+
+                    <div>
+                        <span class="badge badge-warning text-dark font-weight-bold mb-2">Aujourd'hui</span>
+                        <p class="small mb-0" style="opacity: 0.8;">Plus de 5 000 cadres formés et insérés de manière active dans le tissu économique privé et public.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

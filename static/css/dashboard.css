@@ -1,0 +1,65 @@
+/* ==========================================================================
+   CSS DE PERSONNALISATION DE L'INTRANET (BARRE LATÉRALE ET COMPORTEMENT VISUEL)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. SUPPRESSION DU PIED DE PAGE SUR L'INTRANET
+   -------------------------------------------------------------------------- */
+/* 
+   Utilise le pseudo-sélecteur moderne ":has()" pour détecter si la page contient 
+   la barre latérale de l'intranet (col-md-3 avec fond vert #004d26).
+   Si c'est le cas, il masque totalement toutes les variantes possibles du footer public 
+   afin de maximiser l'espace de travail vertical de l'utilisateur connecté.
+*/
+body:has(.col-md-3[style*="#004d26"]) footer,
+body:has(.col-md-3[style*="#004d26"]) .footer-ibam,
+body:has(.col-md-3[style*="#004d26"]) .footer-section {
+    display: none !important; /* Force la disparition du pied de page */
+}
+
+/* --------------------------------------------------------------------------
+   2. FIXATION ET ANCRAGE DE LA BARRE LATÉRALE GAUCHE (SIDEBAR)
+   -------------------------------------------------------------------------- */
+/* 
+   Cible la colonne Bootstrap de gauche servant de menu à l'intranet.
+   L'ancre en position fixe sur l'écran juste en dessous de la double barre de navigation,
+   et lui attribue une hauteur dynamique calculée pour occuper tout le reste de l'écran.
+*/
+.col-md-3.col-lg-2.text-white[style*="#004d26"] {
+    position: fixed !important;    /* Rend la barre immobile lors du défilement de la page */
+    top: 153px !important;         /* Se place précisément sous la barre de navigation de 153px de haut */
+    left: 0;                       /* Aligne la barre contre le bord gauche de l'écran */
+    bottom: 0;                     /* Étire la structure jusqu'au bas de la fenêtre */
+    height: calc(100vh - 153px) !important; /* Calcule la hauteur : 100% de l'écran moins la hauteur du menu supérieur */
+    z-index: 999 !important;       /* Assure que la barre passe au-dessus du contenu éditorial lors du défilement */
+    overflow-y: auto;              /* Active un défilement vertical interne si le menu contient beaucoup de liens */
+    padding-top: 20px !important;  /* Crée un espace interne en haut pour décoller le premier lien */
+}
+
+/* --------------------------------------------------------------------------
+   3. AJUSTEMENT ET DÉCALAGE DE LA ZONE DE CONTENU CENTRAL (DROITE)
+   -------------------------------------------------------------------------- */
+/* 
+   Cible le bloc principal à droite de la barre latérale.
+   Ajoute une marge à gauche pour compenser la superposition créée par la sidebar fixe
+   afin que le contenu textuel ou les tableaux ne soient pas masqués ou rognés.
+*/
+.col-md-9.col-lg-10.p-4.bg-light {
+    margin-left: 16.666667% !important; /* Décale le bloc de la largeur exacte de la colonne 'col-lg-2' (1/6ème de l'écran) */
+    min-height: calc(100vh - 153px) !important; /* Force la zone blanche à occuper tout l'écran pour éviter les coupures visuelles */
+    padding-top: 30px !important;       /* Ajoute un espacement de confort en haut du contenu */
+}
+
+/* --------------------------------------------------------------------------
+   4. COMPORTEMENT RESPONSIVE POUR LES ÉCRANS INTERMÉDIAIRES (TABLETTES)
+   -------------------------------------------------------------------------- */
+/* 
+   Bout de code s'activant uniquement sur les écrans d'une largeur maximale de 991.98px.
+   Ajuste les décalages de colonnes spécifiques à la grille responsive de Bootstrap 
+   pour maintenir la cohérence de l'interface sur les formats tablettes.
+*/
+@media (max-width: 991.98px) {
+    .col-md-3.col-lg-2.text-white[style*="#004d26"] {
+        margin-left: 25% !important; /* Aligne le décalage sur la taille d'une colonne 'col-md-3' (1/4ème de l'écran) */
+    }
+}

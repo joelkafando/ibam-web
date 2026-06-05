@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contactez l'Administration - IBAM{% endblock %}
+
+{% block content %}
+<!-- Section Hero / Bannière -->
+<div class="jumbotron jumbotron-fluid text-white mb-0" style="background: linear-gradient(rgba(0, 77, 38, 0.85), rgba(0, 77, 38, 0.95)), url('{% static 'images/campus/campus_bg.jpg' %}') center/cover; padding: 4rem 0;">
+    <div class="container text-center">
+        <h1 class="display-4 font-weight-bold text-uppercase" style="letter-spacing: 1px; font-size: 2.5rem;">Contactez-nous</h1>
+        <p class="lead font-weight-light">Une question ? Une demande d'assistance ? L'administration de l'IBAM reste à votre écoute.</p>
+        <div class="mx-auto" style="width: 80px; height: 4px; background-color: #ffc107; border-radius: 2px;"></div>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 1200px;">
+    
+    <!-- Zone d'affichage des alertes de succès Django -->
+  <!--  {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success border-0 shadow-sm p-4 mb-4 rounded" role="alert">
+                <i class="fas fa-check-circle mr-2"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}  -->
+
+    <div class="row">
+        <!-- Colonne Gauche : Formulaire de contact -->
+        <div class="col-lg-7 mb-5 mb-lg-0">
+            <div class="card border-0 shadow-sm p-4 bg-white rounded h-100">
+                <h4 class="font-weight-bold mb-4" style="color: #004d26;">
+                    <i class="far fa-envelope mr-2"></i> Envoyer un message
+                </h4>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold small text-secondary">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn text-white font-weight-bold px-4 py-2 mt-3 transition-btn" style="background-color: #004d26;">
+                        <i class="fas fa-paper-plane mr-2"></i> Envoyer le message
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Coordonnées Officielles & Réseaux Sociaux -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 bg-white rounded mb-4" style="border-top: 4px solid #ffc107 !important;">
+                <h4 class="font-weight-bold text-dark mb-4">Joindre l'établissement</h4>
+                
+                <!-- Téléphone -->
+                <div class="media mb-3">
+                    <i class="fas fa-phone-alt text-success mr-3 mt-1" style="font-size: 1.2rem; width: 20px;"></i>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold mb-0 text-dark">Téléphone</h6>
+                        <p class="text-muted small mb-0">(+226) 25 37 67 62</p>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="media mb-3">
+                    <i class="far fa-envelope text-success mr-3 mt-1" style="font-size: 1.2rem; width: 20px;"></i>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold mb-0 text-dark">Adresse Email</h6>
+                        <p class="text-muted small mb-0">contact@ujkz.bf</p>
+                    </div>
+                </div>
+
+                <!-- Réseaux Sociaux -->
+                <div class="media">
+                    <i class="fab fa-facebook-square text-primary mr-3 mt-1" style="font-size: 1.3rem; width: 20px;"></i>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold mb-0 text-dark">Page Facebook</h6>
+                        <p class="text-muted small mb-0">
+                            <a href="https://facebook.com" target="_blank" class="text-primary font-weight-bold">
+                                Suivre l'IBAM sur Facebook
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Google Maps Réelle et Centrée sur l'IBAM (Responsive) -->
+            <div class="card border-0 shadow-sm rounded overflow-hidden">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3896.621430781636!2d-1.499713976683759!3d12.40825762123072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xe2ebfbe8f66ffe3%3A0xdbf879b26efe0d74!2sInstitut%20Burkinab%C3%A8%20des%20Arts%20et%20M%C3%A9tiers!5e0!3m2!1sfr!2sbf!4v1779551843192!5m2!1sfr!2sbf" 
+                    width="100%" 
+                    height="250" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Focus esthétique sur les inputs pour respecter la charte IBAM */
+    .form-control:focus {
+        border-color: #004d26 !important;
+        box-shadow: 0 0 0 .2rem rgba(0,77,38,.25) !important;
+    }
+    .transition-btn {
+        transition: all 0.3s ease;
+    }
+    .transition-btn:hover {
+        background-color: #002b15 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}

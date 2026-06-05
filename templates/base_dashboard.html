@@ -1,0 +1,67 @@
+{% extends 'base_admin.html' %} {# Héritage du squelette d'administration contenant la barre latérale gauche noire #}
+{% load static %} {# Initialisation des fonctionnalités de gestion des fichiers statiques #}
+
+{% block admin_content %} {# Ouverture du bloc d'injection pour le contenu central de l'administration #}
+
+<!-- ==========================================
+   1. EN-TÊTE DE LA PAGE (BARRE DE CONTEXTE)
+   ========================================== -->
+<!-- Structure flexible alignant le titre à gauche et le badge d'état de session active à droite -->
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <div>
+        <h3 class="font-weight-bold text-dark mb-0">Panneau de Contrôle Directeur</h3>
+        <p class="text-muted small mb-0">Gestion globale du système numérique IBAM.</p>
+    </div>
+    <!-- Badge vert signalant visuellement le nom d'utilisateur administrateur connecté -->
+    <div class="badge badge-success p-2">Session Active : {{ request.user.username }}</div>
+</div>
+
+
+<!-- ==========================================
+   2. BLOC DES MODULES ET PASSERELLES (GRILLE BOOTSTRAP 4)
+   ========================================== -->
+<!-- Rangée principale accueillant 3 cartes d'action de dimensions égales pour les écrans d'ordinateurs (col-md-4) -->
+<div class="row">
+    
+    <!-- CARTE D'ACTION 1 : Accès à l'administration technique native de Django -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm rounded-lg text-center p-3">
+            <div class="card-body">
+                <i class="fas fa-users-cog fa-2x text-primary mb-2"></i> {# Icône d'engrenage des configurations de profils #}
+                <h6 class="text-muted small text-uppercase font-weight-bold">Back-Office</h6>
+                <p class="small text-muted">Gestion des comptes</p>
+                <!-- Bouton pleine largeur (btn-block) redirigeant vers l'URL d'administration technique standard -->
+                <a href="/admin/" class="btn btn-primary btn-sm btn-block rounded-pill mt-2">Ouvrir Django Admin</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CARTE D'ACTION 2 : Lien vers la gestion visuelle des emplois du temps -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm rounded-lg text-center p-3">
+            <div class="card-body">
+                <i class="fas fa-calendar-alt fa-2x text-success mb-2"></i> {# Icône d'agenda hebdomadaire #}
+                <h6 class="text-muted small text-uppercase font-weight-bold">Plannings</h6>
+                <p class="small text-muted">Emplois du temps</p>
+                <!-- Lien à configurer (ex: {% url 'academics:gestion_planning_admin' %}) pour l'ajout rapide de cours -->
+                <a href="#" class="btn btn-success btn-sm btn-block rounded-pill mt-2">Gérer les Cours</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CARTE D'ACTION 3 : Sortie sécurisée vers le portail institutionnel public -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm rounded-lg text-center p-3">
+            <div class="card-body">
+                <i class="fas fa-university fa-2x text-warning mb-2"></i> {# Icône de bâtiment académique #}
+                <h6 class="text-muted small text-uppercase font-weight-bold">Site Public</h6>
+                <p class="small text-muted">Retour à la vitrine</p>
+                <!-- Redirection dynamique vers la racine de l'application (page d'accueil) avec mise en valeur jaune -->
+                <a href="{% url 'home' %}" class="btn btn-warning btn-sm btn-block rounded-pill mt-2 font-weight-bold text-dark">Voir la Vitrine</a>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %} {# Clôture de la zone d'intégration de l'administration #}

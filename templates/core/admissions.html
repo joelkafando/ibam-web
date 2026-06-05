@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Activation Compte Étudiant - IBAM{% endblock %}
+
+{% block content %}
+<!-- Section Hero / Bannière -->
+<div class="jumbotron jumbotron-fluid text-white mb-0" style="background: linear-gradient(rgba(0, 77, 38, 0.85), rgba(0, 77, 38, 0.95)), url('{% static 'images/campus/campus_bg.jpg' %}') center/cover; padding: 4rem 0;">
+    <div class="container text-center">
+        <h1 class="display-4 font-weight-bold text-uppercase" style="letter-spacing: 1px; font-size: 2.5rem;">Nouveaux Étudiants</h1>
+        <p class="lead font-weight-light">Vous avez été orienté à l'IBAM via Campus Faso ? Activez votre espace ici.</p>
+        <div class="mx-auto" style="width: 80px; height: 4px; background-color: #ffc107; border-radius: 2px;"></div>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 1000px;">
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <!-- Message d'information Campus Faso -->
+            <div class="alert alert-info border-0 shadow-sm p-4 mb-5 bg-white rounded" style="border-left: 5px solid #17a2b8 !important;">
+                <h5 class="font-weight-bold text-info"><i class="fas fa-university mr-2"></i> Rappel Important</h5>
+                <p class="text-secondary mb-0">
+                    Les inscriptions administratives, le paiement des frais d'inscription nationaux et les attributions de bourses sont gérés exclusivement sur la plateforme officielle <strong>Campus Faso</strong>. Aucun dépôt de dossier physique initial n'est requis sur ce site.
+                </p>
+            </div>
+
+            <!-- Guide des étapes pour l'étudiant admis -->
+            <div class="card border-0 shadow-sm rounded p-4 bg-white mb-5">
+                <h4 class="font-weight-bold text-dark mb-4">
+                    <i class="fas fa-user-check text-success mr-2"></i> Procédure d'accès à vos plannings
+                </h4>
+                
+                <div class="media mb-4">
+                    <div class="mr-3 bg-light rounded-circle text-center d-flex align-items-center justify-content-center font-weight-bold text-success border border-success" style="width: 40px; height: 40px; min-width: 40px;">1</div>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold text-dark mb-1">Vérification de votre orientation</h6>
+                        <p class="text-secondary small">Assurez-vous que votre nom figure bien sur la liste officielle des admis envoyée par Campus Faso à la direction de l'IBAM.</p>
+                    </div>
+                </div>
+
+                <div class="media mb-4">
+                    <div class="mr-3 bg-light rounded-circle text-center d-flex align-items-center justify-content-center font-weight-bold text-success border border-success" style="width: 40px; height: 40px; min-width: 40px;">2</div>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold text-dark mb-1">Création de votre compte local</h6>
+                        <p class="text-secondary small">Utilisez le bouton ci-dessous pour ouvrir un compte sur ce site. Vous devez obligatoirement sélectionner votre <strong>Filière</strong> et votre <strong>Niveau actuel (ex: Licence 1)</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="media">
+                    <div class="mr-3 bg-light rounded-circle text-center d-flex align-items-center justify-content-center font-weight-bold text-success border border-success" style="width: 40px; height: 40px; min-width: 40px;">3</div>
+                    <div class="media-body">
+                        <h6 class="font-weight-bold text-dark mb-1">Suivi des cours en temps réel</h6>
+                        <p class="text-secondary small">Une fois connecté, votre tableau de bord affichera instantanément la grille matricielle des cours qui correspond spécifiquement à votre promotion.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Encadré d'action principal -->
+            <div class="card border-0 shadow text-center p-5 text-white rounded" style="background: linear-gradient(135deg, #004d26, #002b15);">
+                <h4 class="font-weight-bold mb-3 text-warning">Vous êtes admis et prêt à commencer ?</h4>
+                <p class="mb-4 mx-auto font-weight-light" style="max-width: 600px; opacity: 0.9;">
+                    En créant votre compte maintenant, vous rejoignez l'intranet de l'IBAM pour consulter les emplois du temps hebdomadaires mis à jour par l'administration.
+                </p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-lg btn-light font-weight-bold text-success shadow rounded-pill px-5 py-2 style-btn">
+                    <i class="fas fa-user-plus mr-2"></i> Créer mon compte Étudiant
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .style-btn {
+        color: #004d26 !important; 
+        border: 2px solid white;
+        transition: all 0.3s ease;
+    }
+    .style-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
+    }
+</style>
+{% endblock %}

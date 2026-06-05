@@ -1,0 +1,72 @@
+{% load static %} {# Activation indispensable du gestionnaire d'atouts statiques pour lier vos fichiers locaux (CSS, JS) #}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Framework CSS principal : Assure une grille adaptative Bootstrap 4 sur l'ensemble de la vitrine publique -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+    
+    <!-- CDN FontAwesome gérant le chargement des icônes vectorielles du site (loupe, profils, réseaux sociaux) -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <!-- Feuille de style globale du projet contenant la charte graphique officielle (Vert #004d26 et Or #ffc107) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Titre de l'onglet du navigateur avec une valeur par défaut modifiable par chaque page via son bloc title -->
+    <title>IBAM | {% block title %}Institut Burkinabè des Arts et Métiers{% endblock %}</title>
+  </head>
+  <body>
+
+    <!-- ==========================================================================
+       1. EN-TÊTE : COMPOSANT DE NAVIGATION DÉCOUPLÉ (NAVBAR)
+       ========================================================================== -->
+    <!-- Inclusion modulaire du fichier contenant les menus, l'arborescence et l'accès au portail connecté -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- ==========================================================================
+       2. CORPS DE PAGE : POINT D'INJECTION MAÎTRE DU CONTENU (MAIN)
+       ========================================================================== -->
+    <!-- Conteneur structurel sémantique accueillant le cœur éditorial de chaque vue enfant (Accueil, Contact, etc.) -->
+    <main>
+    <!-- CONTENEUR DES MESSAGES FLASH CENTRALISÉ -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <!-- Alerte Bootstrap fluide et fermable à la main -->
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 shadow-sm mb-3" role="alert">
+                    {% if message.tags == 'success' %}<i class="fas fa-check-circle mr-2"></i>{% endif %}
+                    {% if message.tags == 'error' %}<i class="fas fa-exclame-triangle mr-2"></i>{% endif %}
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Point d'injection des pages enfants -->
+    {% block content %}
+    {% endblock %}
+</main>
+
+    <!-- ==========================================================================
+       3. PIED DE PAGE : COMPOSANT DE FIN DE PAGE DÉCOUPLÉ (FOOTER)
+       ========================================================================== -->
+    <!-- Inclusion modulaire du bloc de fin de page contenant les mentions légales, adresses et liens utiles -->
+    {% include 'partials/footer.html' %}
+
+    <!-- ==========================================================================
+       4. LOGIQUE APPLICATIVE : DÉPENDANCES ET SCRIPTS DE COMPORTEMENT
+       ========================================================================== -->
+    <!-- Chargement ordonné des librairies JS gérant le responsive, les fenêtres modales et les menus déroulants -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+    
+    <!-- Script d'animations locales personnalisé propre au projet de l'institut -->
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

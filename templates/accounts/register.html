@@ -1,0 +1,91 @@
+{% extends 'base.html' %} {# Liaison avec le fichier de structure parent pour héberger le design global #}
+{% block title %}Inscription Étudiant - IBAM{% endblock %} {# Surcharge dynamique de la balise HTML <title> pour l'onglet du navigateur #}
+
+{% block content %} {# Ouverture du bloc éditorial principal #}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Calibrage de la boîte de dialogue sur 6 colonnes Bootstrap centrées pour une lecture confortable -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-4 bg-white rounded">
+                <!-- Titre de la page mis en valeur avec la couleur de charte verte de l'IBAM -->
+                <h3 class="font-weight-bold text-center mb-4" style="color: #004d26;">Créer un compte Étudiant</h3>
+                
+                <!-- Déclaration du formulaire d'envoi (Méthode POST obligatoire pour la sécurité des comptes) -->
+                <form method="POST">
+                    {% csrf_token %} {# Clé de chiffrement Django pour bloquer les tentatives d'injections et attaques CSRF #}
+                    
+                    <!-- BOUCLE DYNAMIQUE : Parcours automatique de tous les champs déclarés dans EtudiantRegisterForm -->
+                    {% for field in form %}
+                        <div class="form-group mb-3">
+                            <!-- Affichage du libellé du champ de saisie actuel -->
+                            <label class="font-weight-bold small text-secondary">{{ field.label }}</label>
+                            
+                            <!-- Rendu HTML de la zone de saisie généré par le moteur de formulaires de Django -->
+                            {{ field }}
+                            
+                            <!-- CAS D'ERREUR COMPTE : S'active si la saisie du champ actuel viole une contrainte de validation -->
+                            {% if field.errors %}
+                                <!-- Le filtre '|striptags' nettoie le message de toutes balises HTML brutes indésirables -->
+                                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                            
+                            <!-- TEXTE D'AIDE : Affiche les consignes techniques (ex: exigences sur la taille du mot de passe) -->
+                            {% if field.help_text %}
+                                <!-- Le filtre '|safe' autorise l'affichage propre des balises HTML contenues dans la consigne -->
+                                <small class="form-text text-muted d-block mt-1">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- BOUTON D'ENVOI : Soumet la totalité des données d'inscription au serveur -->
+                    <button type="submit" class="btn text-white w-100 font-weight-bold mt-4 py-2" style="background-color: #004d26;">
+                        S'inscrire
+                    </button>
+                </form>
+                
+                <!-- PASSERELLE DE NAVIGATION : Lien de redirection pour les utilisateurs possédant déjà un compte valide -->
+                <div class="text-center mt-3">
+                    <a href="{% url 'accounts:login' %}" class="small text-secondary font-weight-bold" style="color: #004d26 !important;">
+                        Déjà un compte ? Connectez-vous ici
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+   STYLE CSS LOCAL DE SURCHARGE (FALLBACK DESIGN)
+   ========================================== -->
+<style>
+    /* 
+       Surcharge esthétique globale : applique l'apparence des classes 'form-control' de Bootstrap 
+       aux balises de saisie natives générées automatiquement par Django (évite le design brut des navigateurs).
+    */
+    input[type="text"], input[type="email"], input[type="password"] {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .37rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        /* Animation de transition fluide lors de la sélection ou de la désélection d'un champ */
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    /* 
+       Effet de Focus : Modifie dynamiquement l'encadrement du champ lorsque l'étudiant clique dedans, 
+       en y ajoutant un halo lumineux vert translucide conforme aux codes couleur de l'IBAM.
+    */
+    input:focus {
+        border-color: #004d26 !important;
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(0,77,38,.25); /* Effet d'ombrage d'accentuation */
+    }
+</style>
+{% endblock %} {# Fermeture du bloc éditorial #}

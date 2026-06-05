@@ -1,0 +1,199 @@
+{% load static %}
+
+<!-- 1. Bande rouge supérieure -->
+<div style="height: 5px; background-color: #c00; width: 100%"></div>
+
+<!-- 2. Partie Haute : Logo, Recherche et Connexion conditionnelle -->
+<div class="bg-white py-3">
+  <div
+    class="container-fluid d-flex justify-content-between align-items-center"
+  >
+    <!-- Bloc Identité IBAM -->
+    <a class="navbar-brand d-flex align-items-center m-0" href="{% url 'home' %}">
+      <img src="{% static 'images/logos/logo_uts.png' %}" alt="Logo IBAM" height="60" class="mr-3" />
+      <div class="brand-text">
+        <span
+          class="d-block font-weight-bold"
+          style="
+            font-size: 1.1rem;
+            line-height: 1.1;
+            color: #000;
+            letter-spacing: 1px;
+          "
+        >
+          INSTITUT BURKINABÈ
+        </span>
+        <span
+          class="d-block font-weight-bold"
+          style="font-size: 1.3rem; line-height: 1.1; color: #000"
+        >
+          DES ARTS ET MÉTIERS
+        </span>
+        <small
+          class="text-muted font-weight-bold"
+          style="font-size: 0.65rem; text-transform: uppercase"
+        >
+          Excellence - Professionnalisme - Emploi
+        </small>
+      </div>
+    </a>
+
+    <!-- Zone Droite Dynamique : Masquée si connecté -->
+    <div class="d-flex align-items-center">
+      {% if not user.is_authenticated %}
+      <!-- Recherche (Masquée pour l'étudiant connecté) -->
+      <form class="form-inline d-none d-md-block mr-3">
+        <div class="search-box-custom">
+          <input
+            type="text"
+            class="search-input-custom"
+            placeholder="Rechercher..."
+          />
+          <button type="submit" class="search-btn-custom">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Connexion (Masqué pour l'étudiant connecté) -->
+      <a href="{% url 'accounts:login' %}" class="btn-login-custom">
+        <i class="fas fa-user-circle mr-2"></i>
+        CONNEXION
+      </a>
+      {% else %}
+      <!-- Affiché UNIQUEMENT si l'utilisateur est connecté -->
+      <div class="d-flex align-items-center">
+        <!-- Bouton 1 : Permet de retourner instantanément sur l'intranet depuis l'accueil -->
+        {% if request.user.is_superuser or request.user.role_user == 'ADMIN' %}
+  <!-- Ce bouton s'affichera pour l'administrateur -->
+  <a
+    href="/dashboard/portail/administration/"
+    class="btn btn-sm btn-success font-weight-bold rounded-pill px-3 mr-2"
+    style="background-color: #004d26; border-color: #ffc107"
+  >
+    <i class="fas fa-user-shield mr-1 text-warning"></i>
+    Administration
+  </a>
+{% elif request.user.role_user == 'ENSEIGNANT' %}
+  <!-- Ce bouton s'affichera pour l'enseignant -->
+  <a
+    href="{% url 'dashboard:teacher_dashboard' %}"
+    class="btn btn-sm btn-success font-weight-bold rounded-pill px-3 mr-2"
+    style="background-color: #004d26; border-color: #ffc107"
+  >
+    <i class="fas fa-chalkboard-teacher mr-1 text-warning"></i>
+    Espace Enseignant
+  </a>
+{% else %}
+  <!-- Ce bouton s'affichera pour les étudiants et autres utilisateurs -->
+  <a
+    href="{% url 'dashboard:student_dashboard' %}"
+    class="btn btn-sm btn-success font-weight-bold rounded-pill px-3 mr-2"
+    style="background-color: #004d26; border-color: #ffc107"
+  >
+    <i class="fas fa-desktop mr-1 text-warning"></i>
+    Mon Espace
+  </a>
+{% endif %}
+
+
+        <!-- Bouton 2 : Déconnexion immédiate avec redirection automatique vers l'accueil -->
+        <!-- Bouton 2 : Déconnexion immédiate avec redirection automatique vers l'accueil -->
+<form action="{% url 'accounts:logout' %}" method="post" class="m-0 p-0 d-inline">
+  {% csrf_token %}
+  <button
+    type="submit"
+    class="btn btn-sm btn-outline-danger font-weight-bold rounded-pill px-3"
+  >
+    <i class="fas fa-sign-out-alt mr-1"></i>
+    Déconnexion
+  </button>
+</form>
+
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- 3. Barre de Menu (Navigation Publique) -->
+<!-- 3. Barre de Menu (Navigation Publique) - Version Nettoyée et Fonctionnelle -->
+<nav class="navbar navbar-expand-lg p-0 main-nav-bar">
+  <div class="container-fluid">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navMenu"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">ACCUEIL</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            PRESENTATION
+          </a>
+          <div class="dropdown-menu">
+            <!-- Utilise la route /about/ nommée 'presentation' pour charger about.html -->
+            <a class="dropdown-item" href="{% url 'presentation' %}">Présentation & Missions</a>
+            <a class="dropdown-item" href="{% url 'historique' %}">Historique</a>
+            <a class="dropdown-item" href="{% url 'equipe' %}">Équipe dirigeante</a>
+          </div>
+        </li>
+
+       
+       <!-- Nouvel onglet déroulant pour regrouper la scolarité -->
+         <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarScolarite" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        SCOLARITÉ
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarScolarite">
+        <!-- Lien vers le guide Campus Faso -->
+        <a class="dropdown-item" href="{% url 'admissions' %}">Admissions & Inscriptions</a>
+        
+        <!-- Lien vers l'emploi du temps public -->
+        <a class="dropdown-item" href="{% url 'academics:timetable_public' %}">Programme des cours</a>
+    </div>
+</li>
+
+ <li class="nav-item">
+          <a class="nav-link" href="{% url 'formations' %}">FORMATIONS</a>
+        </li>
+
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'announcements:announcements' %}">ACTUALITÉS</a>
+        </li>
+
+        <!-- 2. Nouvel Onglet Déroulant : COMMUNAUTÉ (Combinaison Alumni & Forum) -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarCommunaute" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        COMMUNAUTÉ
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarCommunaute">
+        <!-- Lien vers l'annuaire des anciens étudiants -->
+        <a class="dropdown-item font-weight-bold" href="{% url 'academics:annuaire_alumni_public' %}">
+            <i class="fas fa-user-graduate mr-2 text-success"></i> Réseau Alumni
+        </a>
+        
+        <!-- Lien direct vers l'espace de discussion -->
+        <a class="dropdown-item font-weight-bold" href="{% url 'forum:index' %}">
+            <i class="fas fa-comments mr-2 text-success"></i> Forum d'entraide
+        </a>
+    </div>
+</li>
+
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'contact' %}">CONTACT</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

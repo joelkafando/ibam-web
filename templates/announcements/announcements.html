@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Actualités & Communiqués | IBAM{% endblock %}
+
+{% block content %}
+<!-- Header de page -->
+<section class="py-5 text-center text-white" style="background: linear-gradient(rgba(0, 77, 38, 0.85), rgba(0, 77, 38, 0.85)); background-color: #004d26;">
+    <div class="container py-4">
+        <h1 class="display-4 font-weight-bold">ACTUALITÉS</h1>
+        <p class="lead">Retrouvez tous les communiqués officiels et événements de l'IBAM.</p>
+    </div>
+</section>
+
+<!-- Liste des annonces -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            {% for news in announcements %}
+            <div class="col-md-4 mb-4">
+                <!-- On réutilise le même design de carte -->
+                <div class="card-news shadow-sm h-100">
+                    <div class="news-img-container">
+                        {% if news.image %}
+                            <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                        {% else %}
+                            <img src="{% static 'images/campus/default.jpg' %}" alt="IBAM">
+                        {% endif %}
+                        <div class="news-date-badge">
+                            {{ news.date_published|date:"d" }} <br> <span>{{ news.date_published|date:"M" }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge badge-warning mb-2 text-white">{{ news.get_category_display }}</span>
+                        <h5 class="font-weight-bold">{{ news.title }}</h5>
+                        <p class="text-muted small">{{ news.content|truncatewords:20 }}</p>
+                        <hr>
+                        <a href="{% url 'announcements:announcement_detail' news.pk %}" class="text-dark font-weight-bold small">LIRE LA SUITE <i class="fas fa-file-pdf ml-1 text-danger"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="lead text-muted">Aucun communiqué officiel n'a été publié pour le moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
