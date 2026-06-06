@@ -5,6 +5,8 @@ from django.views.decorators.http import require_POST
 from accounts.models import Utilisateur # Importation de votre modèle Utilisateur personnalisé
 from django.db import models
 from django.contrib.auth.decorators import login_required  # Django gère cela nativement et de façon très puissante grâce au décorateur @login_required
+# À ajouter impérativement tout en haut de academics/views.py
+from django.contrib.auth import get_user_model
 
 
 # ==========================================
@@ -88,7 +90,7 @@ from .models import Filiere, EmploiDuTemps
 def gestion_planning_admin(request):
     """
     Interface graphique de gestion sur mesure pour l'administrateur.
-    Organise les cours de manière flexible sous forme de listes quotidiennes.
+    Organise les cours sous forme de listes quotidiennes et traite la planification en POST.
     """
     # Récupération de toutes les filières pour le formulaire de sélection initial
     filieres = Filiere.objects.all()
@@ -106,10 +108,49 @@ def gestion_planning_admin(request):
     CHOICES_NIVEAU = ['Licence 1', 'Licence 2', 'Licence 3', 'Master 1', 'Master 2']
     JOURS = ['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI']
 
+    # 1. RÉSOLUTION : Extraction de la liste de tous les enseignants actifs du système (Prof1 inclus à coup sûr)
+    Utilisateur = get_user_model()
+    tous_les_profs = Utilisateur.objects.filter(role_user__iexact='ENSEIGNANT').order_by('username')
+
     # ÉTAPE 1 : Extraction des cours en base de données selon le filtre appliqué
     if filiere_id and niveau_selectionne:
         filiere_selectionnee = Filiere.objects.filter(pk=filiere_id).first()
         if filiere_selectionnee:
+            
+            # Traitement de l'enregistrement d'une nouvelle séance de cours (Méthode POST)
+            if request.method == 'POST':
+                nom_matiere = request.POST.get('nom_matiere')
+                enseignant_id = request.POST.get('enseignant')  # Récupère l'ID numérique sélectionné dans le <select>
+                jour = request.POST.get('jour')
+                heure_debut = request.POST.get('heure_debut')
+                heure_fin = request.POST.get('heure_fin')
+                salle = request.POST.get('salle')
+                semaine_du = request.POST.get('semaine_du', 'Semaine en cours')
+                
+                try:
+                    # Récupération physique de l'objet Enseignant depuis la base de données
+                    prof_instance = Utilisateur.objects.get(id=enseignant_id)
+                    
+                    # Enregistrement relationnel conforme aux exigences de Django
+                    EmploiDuTemps.objects.create(
+                        filiere=filiere_selectionnee,
+                        niveau_etude=niveau_selectionne,
+                        nom_matiere=nom_matiere,
+                        enseignant=prof_instance,  # On passe l'objet Utilisateur, pas du texte !
+                        jour=jour,
+                        heure_debut=heure_debut,
+                        heure_fin=heure_fin,
+                        salle=salle,
+                        semaine_du=semaine_du
+                    )
+                    messages.success(request, "La séance de cours a été planifiée avec succès dans la grille graphique !")
+                    return redirect(f'/academics/gestion-planning/?filiere_id={filiere_id}&niveau_etude={niveau_selectionne}')
+                    
+                except Utilisateur.DoesNotExist:
+                    messages.error(request, "Erreur : L'enseignant sélectionné est introuvable.")
+                except Exception as e:
+                    messages.error(request, f"Erreur de traitement : {str(e)}")
+
             # Récupération des cours de la classe, classés chronologiquement par heure de début
             emplois = EmploiDuTemps.objects.filter(
                 filiere=filiere_selectionnee,
@@ -127,11 +168,10 @@ def gestion_planning_admin(request):
     # ÉTAPE 3 : Distribution et répartition libre de chaque cours dans son jour respectif
     if emplois:
         for c in emplois:
-            # Sécurité pour vérifier que le jour du cours est bien présent dans notre liste de référence
             if c.jour in grille_jours:
                 grille_jours[c.jour].append(c)
 
-    # ÉTAPE 4 : Restructuration des données sous forme de liste de dictionnaires pour faciliter la boucle du template
+    # ÉTAPE 4 : Restructuration des données sous forme de liste de dictionnaires pour la boucle du template
     grille_html = []
     for jour in JOURS:
         grille_html.append({
@@ -139,14 +179,15 @@ def gestion_planning_admin(request):
             'cours_liste': grille_jours[jour] # Tous les objets EmploiDuTemps rattachés à ce jour
         })
 
-    # ÉTAPE 5 : Préparation et envoi du contexte global au template de gestion
+    # ÉTAPE 5 : Préparation et envoi du contexte global au template de gestion (Totalement corrigé et lié)
     context = {
         'filieres': filieres,
         'choices_niveau': CHOICES_NIVEAU,
-        'filiere_selectionnee': filiere_selectionnee,
+        'filiere_selectionnee': filiere_selectionnee,  # Envoie le véritable objet Filiere
         'niveau_selectionne': niveau_selectionne,
         'periode_semaine': periode_semaine,
-        'grille_html': grille_html, # Structure finale imbriquée contenant le planning trié
+        'grille_html': grille_html,
+        'tous_les_profs': tous_les_profs,              # Alimente le menu déroulant HTML avec Prof1 !
     }
     
     # Rendu de la page d'administration visuelle
@@ -156,74 +197,77 @@ def gestion_planning_admin(request):
 
 
 # ==========================================
-# VUE : AJOUT OU MODIFICATION RAPIDE DE COURS
+# VUE : AJOUT OU CREATION RAPIDE DE COURS
 # ==========================================
 @require_POST  # Sécurité : Restreint l'accès à cette vue aux seules requêtes de type POST
 def ajouter_cours_rapide(request):
     """
-    Contrôleur gérant dynamiquement la création et la modification d'un cours en base de données.
-    Redirige l'utilisateur vers le planning filtré après traitement.
+    Contrôleur gérant la création d'une séance de cours en base de données de façon relationnelle.
+    Redirige l'administrateur vers le planning filtré après traitement.
     """
+    # Récupération dynamique du modèle utilisateur personnalisé actif (accounts.Utilisateur)
+    Utilisateur = get_user_model()
+    filiere = None
+    niveau = None
+    
     try:
-        # Récupération sécurisée de la filière (renvoie une erreur 404 si l'identifiant n'existe pas)
+        # 1. Extraction et validation sécurisée de la filière cible (génère un 404 si ID inconnu)
         filiere = get_object_or_404(Filiere, pk=request.POST.get('filiere_id'))
         niveau = request.POST.get('niveau_etude')
-        cours_id = request.POST.get('cours_id')  # Récupère l'ID (présent uniquement en cas de modification)
         
-        # Dictionnaire associant les champs du modèle aux données soumises par le formulaire
-        data_champs = {
-            'filiere': filiere,
-            'niveau_etude': niveau,
-            'semaine_du': request.POST.get('semaine_du', 'Semaine en cours'),
-            'nom_matiere': request.POST.get('nom_matiere'),
-            'enseignant': request.POST.get('enseignant'),
-            'jour': request.POST.get('jour'),
-            'heure_debut': request.POST.get('heure_debut'),
-            'heure_fin': request.POST.get('heure_fin'),
-            'salle': request.POST.get('salle')
-        }
-
-        # Vérification de la présence d'un identifiant de cours valide pour basculer entre UPDATE et INSERT
-        if cours_id and str(cours_id).strip() and str(cours_id) != 'None':
-            # CAS 1 : L'ID existe -> Modification du cours existant via l'opérateur d'inférence (**)
-            EmploiDuTemps.objects.filter(pk=cours_id).update(**data_champs)
-            messages.success(request, "Planification mise à jour avec succès !")
-        else:
-            # CAS 2 : Pas d'ID -> Création d'une nouvelle entrée en base de données
-            EmploiDuTemps.objects.create(**data_champs)
-            messages.success(request, "Nouvelle planification enregistrée avec succès !")
+        # 2. Récupération de l'ID numérique de l'enseignant sélectionné dans la liste déroulante (ex: "8")
+        enseignant_id = request.POST.get('enseignant')
+        
+        # 3. RÉSOLUTION CRITIQUE : Extraction physique de l'instance d'Utilisateur Enseignant
+        prof_instance = get_object_or_404(Utilisateur, id=enseignant_id)
+        
+        # 4. Enregistrement de l'entrée en base de données conformément aux clés étrangères exigées
+        EmploiDuTemps.objects.create(
+            filiere=filiere,
+            niveau_etude=niveau,
+            semaine_du=request.POST.get('semaine_du', 'Semaine en cours'),
+            nom_matiere=request.POST.get('nom_matiere'),
+            enseignant=prof_instance,          # Injection de l'instance physique, pas de l'ID textuel !
+            jour=request.POST.get('jour').upper(),  # Force la casse en majuscules (LUNDI, MARDI...)
+            heure_debut=request.POST.get('heure_debut'),
+            heure_fin=request.POST.get('heure_fin'),
+            salle=request.POST.get('salle')
+        )
+        messages.success(request, "Nouvelle planification enregistrée avec succès !")
 
     except Exception as e:
-        # Capture de toute anomalie de saisie ou de base de données et stockage du message d'erreur
+        # Capture et affichage instantané de l'erreur dans la bannière d'alerte rouge
         messages.error(request, f"Erreur de traitement : {e}")
         
-    # Redirection automatique vers le tableau de bord de gestion avec maintien des filtres actifs
-    return redirect(f"/academics/gestion-planning/?filiere_id={filiere.pk}&niveau_etude={niveau}")
+    # Redirection automatique vers la grille graphique avec maintien des filtres de classe actifs
+    if filiere and niveau:
+        return redirect(f"/academics/gestion-planning/?filiere_id={filiere.pk}&niveau_etude={niveau}")
+    return redirect("/academics/gestion-planning/")
 
 
 # ==========================================
 # VUE : SUPPRESSION RAPIDE D'UN COURS
 # ==========================================
-@require_POST  # Sécurité : Empêche la suppression accidentelle via une simple URL GET
+@require_POST  # Sécurité : Empêche la suppression accidentelle via une simple URL de navigation GET
 def supprimer_cours_rapide(request, pk):
     """
-    Supprime un cours en un seul clic depuis la grille d'administration.
-    Mémorise le contexte de la classe pour rediriger l'utilisateur sur le même écran.
+    Supprime définitivement un cours en un clic depuis la grille d'administration.
+    Mémorise le contexte de la classe pour ré-afficher le même écran filtré.
     """
-    # Récupération de l'objet à supprimer ou génération d'une page 404
+    # Extraction sécurisée du cours à supprimer (génère un 404 si l'ID n'existe pas ou est déjà supprimé)
     cours = get_object_or_404(EmploiDuTemps, pk=pk)
     
-    # Sauvegarde des paramètres de la classe avant destruction de l'objet
+    # Sauvegarde des paramètres de filtrage de la classe avant de détruire l'enregistrement
     filiere_id = cours.filiere.pk
     niveau = cours.niveau_etude
     
-    # Retrait définitif de l'enregistrement en base de données
+    # Retrait définitif de la ligne dans votre table db.sqlite3
     cours.delete()
     
-    # Notification positive envoyée au système de messages Django
-    messages.success(request, "Cours retiré du planning.")
+    # Envoi d'une notification positive au système d'alertes Django
+    messages.success(request, "La séance de cours a été retirée du planning avec succès.")
     
-    # Redirection propre vers la grille de gestion de la classe concernée
+    # Redirection fluide et transparente vers la grille de gestion de la classe concernée
     return redirect(f"/academics/gestion-planning/?filiere_id={filiere_id}&niveau_etude={niveau}")
 
 

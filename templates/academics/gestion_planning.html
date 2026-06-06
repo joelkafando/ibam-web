@@ -2,6 +2,8 @@
 
 {% block content %}
 <div class="container-fluid my-4">
+
+    <!-- EN-TÊTE DE LA PAGE -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-calendar-alt text-success mr-2"></i> Gestion Graphique du Planning - IBAM</h2>
         <a href="/dashboard/portail/administration/" class="btn btn-secondary rounded-pill btn-sm">
@@ -9,10 +11,10 @@
         </a>
     </div>
 
-    <!-- Alertes de confirmation et messages Django -->
+    <!-- ZONE D'AFFICHAGE DES MESSAGES ALERTE DJANGO -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -21,7 +23,7 @@
         {% endfor %}
     {% endif %}
 
-    <!-- FILTRE DE RECHERCHE CLASSE -->
+    <!-- FORMULAIRE DE FILTRAGE PAR CLASSE (FILIÈRE + NIVEAU) -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-body bg-light">
             <form method="GET" class="form-row align-items-end">
@@ -52,265 +54,265 @@
         </div>
     </div>
 
-    <!-- OUVERTURE DU BLOC CONDITIONNEL PRINCIPAL -->
+    <!-- BLOC CONDITIONNEL MAÎTRE : S'ACTIVE SI UNE RECHERCHE EST EFFECTUÉE -->
     {% if filiere_selectionnee and niveau_selectionne %}
-    
-    <!-- AFFICHAGE DE LA GRILLE DES JOURS -->
-    <div class="card border-0 shadow-sm rounded-3">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{{ filiere_selectionnee.nom_filiere }} — <strong>{{ niveau_selectionne }}</strong></h5>
-            <span class="badge badge-warning p-2">Semaine : {{ periode_semaine }}</span>
-        </div>
-        
-        <div class="card-body p-3">
-            <div class="row">
-                {% for jour_data in grille_html %}
-                <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                    <div class="p-2 text-center text-white font-weight-bold rounded-top bg-success small text-uppercase">
-                        {{ jour_data.nom_jour }}
+
+        <!-- GRILLE DE VISUALISATION DU PLANNING -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ filiere_selectionnee.nom_filiere }} — <strong>{{ niveau_selectionne }}</strong></h5>
+                <span class="badge badge-warning p-2">Semaine : {{ periode_semaine }}</span>
+            </div>
+
+            <div class="card-body p-3">
+                <div class="row">
+                    {% for jour_data in grille_html %}
+                    <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+
+                        <!-- Libellé du Jour -->
+                        <div class="p-2 text-center text-white font-weight-bold rounded-top bg-success small text-uppercase">
+                            {{ jour_data.nom_jour }}
+                        </div>
+
+                        <!-- Conteneur des cartes de cours -->
+                        <div class="border border-top-0 p-2 bg-light rounded-bottom" style="min-height: 350px;">
+
+                            {% if jour_data.cours_liste %}
+                                {% for cours in jour_data.cours_liste %}
+                                <div class="card border-0 shadow-sm mb-2 p-2 position-relative" style="border-left: 4px solid #ffc107 !important; font-size: 13px;">
+
+                                    <!-- Formulaire de suppression rapide (Croix rouge) -->
+                                    <form action="{% url 'academics:supprimer_cours_rapide' cours.pk %}" method="POST" class="position-absolute" style="top: 2px; right: 8px; z-index: 9999;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link p-0 border-0 text-decoration-none font-weight-bold"
+                                                style="color: #dc3545 !important; font-size: 20px; line-height: 1; opacity: 0.8;"
+                                                onclick="return confirm('Voulez-vous vraiment supprimer ce cours du planning ?')">
+                                            &times;
+                                        </button>
+                                    </form>
+
+                                    <!-- Bouton Modifier : transmet toutes les données du cours -->
+                                    <button type="button" class="btn btn-link p-0 text-warning position-absolute btn-modifier-cours"
+                                            style="top: 3px; right: 28px; z-index: 9999; font-size: 14px; text-decoration: none;"
+                                            data-toggle="modal" data-target="#modalAjoutCours"
+                                            data-id="{{ cours.pk }}"
+                                            data-jour="{{ jour_data.nom_jour }}"
+                                            data-debut="{{ cours.heure_debut|time:'H:i' }}"
+                                            data-fin="{{ cours.heure_fin|time:'H:i' }}"
+                                            data-semaine="{{ cours.semaine_du }}"
+                                            data-matiere="{{ cours.nom_matiere }}"
+                                            data-enseignant="{{ cours.enseignant.pk }}"
+                                            data-salle="{{ cours.salle }}">
+                                        ✏️
+                                    </button>
+
+                                    <!-- Détails textuels du cours programmé -->
+                                    <div class="font-weight-bold text-dark mb-1 pr-4">{{ cours.nom_matiere }}</div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-user-tie text-success mr-1"></i>
+                                        {% if cours.enseignant.last_name %}{{ cours.enseignant.last_name|upper }} {{ cours.enseignant.first_name }}{% else %}{{ cours.enseignant.username }}{% endif %}
+                                    </div>
+                                    <div class="text-primary font-weight-bold my-1">
+                                        <i class="far fa-clock mr-1"></i>{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}
+                                    </div>
+                                    <div class="text-secondary small">
+                                        <i class="fas fa-map-marker-alt text-danger mr-1"></i>{{ cours.salle }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted small py-4">Aucun cours</div>
+                            {% endif %}
+
+                            <!-- Bouton d'ajout lié au jour en cours -->
+                            <button type="button" class="btn btn-outline-success btn-sm btn-block rounded-pill mt-2"
+                                    data-toggle="modal" data-target="#modalAjoutCours"
+                                    data-jour="{{ jour_data.nom_jour }}">
+                                <i class="fas fa-plus-circle"></i> Programmer
+                            </button>
+                        </div>
                     </div>
-                    <div class="border border-top-0 p-2 bg-light rounded-bottom" style="min-height: 350px;">
-                        
-                        <!-- Liste des cours programmés ce jour-là -->
-                        {% if jour_data.cours_liste %}
-                            {% for cours in jour_data.cours_liste %}
-<div class="card border-0 shadow-sm mb-2 p-2 position-relative" style="border-left: 4px solid #ffc107 !important; font-size: 13px;">
-    
-    <!-- Formulaire de suppression rapide (Croix rouge) -->
-    <form action="{% url 'academics:supprimer_cours_rapide' cours.pk %}" method="POST" class="position-absolute" style="top: 2px; right: 8px; z-index: 9999;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-link p-0 border-0 text-decoration-none font-weight-bold" 
-                style="color: #dc3545 !important; font-size: 20px; line-height: 1; opacity: 0.8;"
-                onclick="return confirm('Voulez-vous vraiment supprimer ce cours du planning ?')">
-            &times;
-        </button>
-    </form>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-    <!-- Bouton Modifier simplifié : On ne transmet QUE l'ID et les heures brutes -->
-    <button type="button" class="btn btn-link p-0 text-warning position-absolute btn-modifier-cours" 
-            style="top: 3px; right: 28px; z-index: 9999; font-size: 14px; text-decoration: none;"
-            data-toggle="modal" data-target="#modalAjoutCours"
-            data-id="{{ cours.pk }}"
-            data-jour="{{ jour_data.nom_jour }}"
-            data-debut="{{ cours.heure_debut|time:'H:i' }}"
-            data-fin="{{ cours.heure_fin|time:'H:i' }}"
-            data-semaine="{{ cours.semaine_du }}">
-        ✏️
-    </button>
-    
-    <!-- Informations textuelles dotées de classes spécifiques pour le script JS -->
-    <div class="font-weight-bold text-dark mb-1 pr-4 js-matiere">{{ cours.nom_matiere }}</div>
-    <div class="text-muted small"><i class="fas fa-user-tie text-success mr-1"></i><span class="js-enseignant">{{ cours.enseignant }}</span></div>
-    <div class="text-primary font-weight-bold my-1">
-        <i class="far fa-clock mr-1"></i>{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}
-    </div>
-    <div class="text-secondary small"><i class="fas fa-map-marker-alt text-danger mr-1"></i><span class="js-salle">{{ cours.salle }}</span></div>
-</div>
-{% endfor %}
-
-                        {% else %}
-                            <div class="text-center text-muted small py-4">Aucun cours</div>
-                        {% endif %}
-
-                        <!-- Bouton d'ajout lié au jour courant -->
-                        <button type="button" class="btn btn-outline-success btn-sm btn-block rounded-pill mt-2" 
-                                data-toggle="modal" data-target="#modalAjoutCours" 
-                                data-jour="{{ jour_data.nom_jour }}">
-                            <i class="fas fa-plus-circle"></i> Programmer
+        <!-- MODALE UNIQUE D'AJOUT ET DE MODIFICATION DE COURS -->
+        <div class="modal fade" id="modalAjoutCours" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="modal_titre">
+                            <i class="fas fa-plus-square mr-2"></i> Ajouter une Planification
+                        </h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+                    <form action="{% url 'academics:ajouter_cours_rapide' %}" method="POST">
+                        {% csrf_token %}
 
-    <!-- MODALE COMPLÈTE D'AJOUT ET DE MODIFICATION SYNCHRONISÉE -->
-    <div class="modal fade" id="modalAjoutCours" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modal_titre"><i class="fas fa-plus-square mr-2"></i> Ajouter une Planification</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{% url 'academics:ajouter_cours_rapide' %}" method="POST">
-                    {% csrf_token %}
-                    <!-- Champ masqué crucial interceptant l'ID pour la modification -->
-                    <input type="hidden" name="cours_id" id="modal_input_cours_id" value="">
-                    
-                    <input type="hidden" name="filiere_id" value="{{ filiere_selectionnee.pk }}">
-                    <input type="hidden" name="niveau_etude" value="{{ niveau_selectionne }}">
+                        <!-- Champ caché unique pour l'ID du cours (vide = création, rempli = modification) -->
+                        <input type="hidden" name="cours_id" id="modal_input_cours_id" value="">
+                        <input type="hidden" name="filiere_id" value="{{ filiere_selectionnee.pk }}">
+                        <input type="hidden" name="niveau_etude" value="{{ niveau_selectionne }}">
 
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="small font-weight-bold">Jour de la semaine</label>
-                            <select name="jour" id="modal_input_jour" class="form-control rounded-pill text-uppercase font-weight-bold border-success text-success" required>
-                                <option value="LUNDI">Lundi</option>
-                                <option value="MARDI">Mardi</option>
-                                <option value="MERCREDI">Mercredi</option>
-                                <option value="JEUDI">Jeudi</option>
-                                <option value="VENDREDI">Vendredi</option>
-                                <option value="SAMEDI">Samedi</option>
-                            </select>
+                        <div class="modal-body">
+
+                            <!-- Sélection du jour de la semaine -->
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Jour de la semaine</label>
+                                <select name="jour" id="modal_input_jour" class="form-control rounded-pill text-uppercase font-weight-bold border-success text-success" required>
+                                    <option value="LUNDI">Lundi</option>
+                                    <option value="MARDI">Mardi</option>
+                                    <option value="MERCREDI">Mercredi</option>
+                                    <option value="JEUDI">Jeudi</option>
+                                    <option value="VENDREDI">Vendredi</option>
+                                    <option value="SAMEDI">Samedi</option>
+                                </select>
+                            </div>
+
+                            <!-- Période / Semaine -->
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Période / Semaine</label>
+                                <input type="text" name="semaine_du" id="modal_input_semaine" class="form-control rounded-pill" value="{{ periode_semaine }}" required>
+                            </div>
+
+                            <!-- Nom de la matière -->
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Matière</label>
+                                <input type="text" name="nom_matiere" id="modal_input_matiere" class="form-control rounded-pill" placeholder="Ex: Bases de Données" required>
+                            </div>
+
+                            <!-- Sélection de l'enseignant -->
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Enseignant</label>
+                                <select name="enseignant" id="modal_input_enseignant" class="form-control rounded-pill" required>
+                                    <option value="">-- Sélectionnez l'enseignant --</option>
+                                    {% for prof in tous_les_profs %}
+                                        <option value="{{ prof.id }}">
+                                            {% if prof.last_name %}{{ prof.last_name|upper }} {{ prof.first_name }}{% else %}{{ prof.username }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Créneaux horaires -->
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label class="small font-weight-bold">Heure de début</label>
+                                    <input type="time" name="heure_debut" id="modal_input_debut" class="form-control rounded-pill" required>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label class="small font-weight-bold">Heure de fin</label>
+                                    <input type="time" name="heure_fin" id="modal_input_fin" class="form-control rounded-pill" required>
+                                </div>
+                            </div>
+
+                            <!-- Salle de cours -->
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Salle de cours</label>
+                                <input type="text" name="salle" id="modal_input_salle" class="form-control rounded-pill" placeholder="Ex: Salle B6" required>
+                            </div>
+
                         </div>
-                        
-                        <!-- 1. Le champ caché pour l'ID du cours (Déjà configuré) -->
-<input type="hidden" name="cours_id" id="modal_input_cours_id" value="">
 
-<!-- 2. Le champ Période / Semaine -->
-<div class="form-group">
-    <label class="small font-weight-bold">Période / Semaine</label>
-    <input type="text" name="semaine_du" id="modal_input_semaine" class="form-control rounded-pill" value="{{ periode_semaine }}" required>
-</div>
-
-<!-- 3. Le champ Matière -->
-<div class="form-group">
-    <label class="small font-weight-bold">Matière</label>
-    <input type="text" name="nom_matiere" id="modal_input_matiere" class="form-control rounded-pill" placeholder="Ex: Bases de Données" required>
-</div>
-
-<!-- 4. Le champ Enseignant -->
-<div class="form-group">
-    <label class="small font-weight-bold">Enseignant</label>
-    <input type="text" name="enseignant" id="modal_input_enseignant" class="form-control rounded-pill" placeholder="Ex: Dr TRAORE Yaya" required>
-</div>
-
-<!-- 5. Les champs Heures -->
-<div class="form-row">
-    <div class="form-group col-6">
-        <label class="small font-weight-bold">Heure de début</label>
-        <input type="time" name="heure_debut" id="modal_input_debut" class="form-control rounded-pill" required>
-    </div>
-    <div class="form-group col-6">
-        <label class="small font-weight-bold">Heure de fin</label>
-        <input type="time" name="heure_fin" id="modal_input_fin" class="form-control rounded-pill" required>
-    </div>
-</div>
-
-<!-- 6. Le champ Salle -->
-<div class="form-group">
-    <label class="small font-weight-bold">Salle de cours</label>
-    <input type="text" name="salle" id="modal_input_salle" class="form-control rounded-pill" placeholder="Ex: Salle B6" required>
-</div>
-
-                    </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-success rounded-pill btn-sm px-4">Enregistrer</button>
-                    </div>
-                </form>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success rounded-pill btn-sm px-4">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- FERMETURE DU FILTRE PRINCIPAL AVEC AFFICHAGE DE L'ALTERNATIVE SI AUCUNE RECHERCHE -->
     {% else %}
-    <div class="alert alert-info text-center py-4 border-0 shadow-sm">
+    <!-- MESSAGE SI AUCUNE RECHERCHE EFFECTUÉE -->
+    <div class="alert alert-info text-center py-4 border-0 shadow-sm rounded-3">
         <i class="fas fa-arrow-up fa-2x mb-2 d-block text-info"></i>
         Sélectionnez une filière et un niveau d'études ci-dessus pour charger l'interface de gestion du planning.
     </div>
     {% endif %}
+
 </div>
 
-<!-- =========================================================================
-     SCRIPT JAVASCRIPT : Liaison dynamique entre la Grille Journalière et la Modale
-     ========================================================================= -->
-<!-- =========================================================================
-     SCRIPT JAVASCRIPT : Routage et Injection des données dans la Modale
-     ========================================================================= -->
+<!-- ============================================================
+     JAVASCRIPT : GESTION DE LA MODALE (AJOUT + MODIFICATION)
+     ============================================================ -->
 <script>
-    $('#modalAjoutCours').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Bouton cliqué
-        var modal = $(this);                 // Fenêtre modale
-        
-        // Extraction des identifiants bruts depuis le bouton
-        var coursId = button.data('id');
-        var jour = button.data('jour');
-        var semaine = button.data('semaine');
-        var debut = button.data('debut');
-        var fin = button.data('fin');
+$('#modalAjoutCours').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var modal = $(this);
 
-        // Pré-sélection automatique du jour de la semaine
-        if (jour) {
-            modal.find('#modal_input_jour').val(jour.toUpperCase());
-        }
+    // Récupération des data-* du bouton déclencheur
+    var coursId  = button.data('id')       || '';
+    var jour     = button.data('jour')     || '';
+    var debut    = button.data('debut')    || '';
+    var fin      = button.data('fin')      || '';
+    var semaine  = button.data('semaine')  || '';
+    var matiere  = button.data('matiere')  || '';
+    var enseignant = button.data('enseignant') || '';
+    var salle    = button.data('salle')    || '';
 
-        // MODE MODIFICATION : Si l'ID du cours existe
-        if (coursId) {
-            // Lecture des textes directement sur la carte blanche
-            var conteneurCard = button.closest('.card');
-            var matiere = conteneurCard.find('.js-matiere').text().trim();
-            var enseignant = conteneurCard.find('.js-enseignant').text().trim();
-            var salle = conteneurCard.find('.js-salle').text().trim();
+    // Injection des valeurs dans la modale
+    modal.find('#modal_input_cours_id').val(coursId);
+    modal.find('#modal_input_semaine').val(semaine || '{{ periode_semaine }}');
+    modal.find('#modal_input_debut').val(debut);
+    modal.find('#modal_input_fin').val(fin);
+    modal.find('#modal_input_matiere').val(matiere);
+    modal.find('#modal_input_salle').val(salle);
 
-            // Injection ultra-précise via les IDs uniques des cases de saisie
-            modal.find('#modal_titre').html('✏️ Modifier la Planification');
-            modal.find('#modal_input_cours_id').val(coursId);
-            modal.find('#modal_input_semaine').val(semaine);
-            modal.find('#modal_input_matiere').val(matiere);
-            modal.find('#modal_input_enseignant').val(enseignant);
-            modal.find('#modal_input_debut').val(debut);
-            modal.find('#modal_input_fin').val(fin);
-            modal.find('#modal_input_salle').val(salle);
-        } 
-        // MODE AJOUT : Si on clique sur un bouton "+ Programmer"
-        else {
-            modal.find('#modal_titre').html('➕ Ajouter une Planification');
-            modal.find('#modal_input_cours_id').val('');
-            modal.find('#modal_input_matiere').val('');
-            modal.find('#modal_input_enseignant').val('');
-            modal.find('#modal_input_debut').val('07:30');
-            modal.find('#modal_input_fin').val('12:30');
-            modal.find('#modal_input_salle').val('');
-        }
-    });
+    // Sélection du jour dans la liste déroulante
+    if (jour) {
+        modal.find('#modal_input_jour').val(jour.toUpperCase());
+    }
+
+    // Sélection de l'enseignant dans le select
+    if (enseignant) {
+        modal.find('#modal_input_enseignant').val(enseignant);
+    }
+
+    // Adaptation du titre selon le mode (ajout ou modification)
+    if (coursId) {
+        modal.find('#modal_titre').html('<i class="fas fa-edit mr-2"></i> Modifier la Planification');
+    } else {
+        modal.find('#modal_titre').html('<i class="fas fa-plus-square mr-2"></i> Ajouter une Planification');
+
+        // Réinitialisation des champs en mode création
+        modal.find('#modal_input_matiere').val('');
+        modal.find('#modal_input_enseignant').val('');
+        modal.find('#modal_input_debut').val('');
+        modal.find('#modal_input_fin').val('');
+        modal.find('#modal_input_salle').val('');
+    }
+});
 </script>
 
-
-<!-- =========================================================================
-     STYLES CSS : Personnalisation graphique de la grille de saisie
-     ========================================================================= -->
+<!-- ============================================================
+     STYLES CSS LOCAUX
+     ============================================================ -->
 <style>
-    /**
-     * Cartes de cours individuelles.
-     * Ajoute des ombres subtiles et gère le positionnement du bouton de suppression.
-     */
     .card.position-relative {
         transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
-
-    /* Effet d'élévation discret lorsque l'administrateur survole un cours existant */
     .card.position-relative:hover {
         transform: translateY(-2px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
     }
-
-    /**
-     * Bouton de programmation rapide (Bouton arrondi vert).
-     * Configure l'animation au survol pour améliorer l'expérience utilisateur.
-     */
     .btn-outline-success {
         border-width: 1.5px;
         font-weight: 600;
         transition: all 0.2s ease;
     }
-
-    /* Changement visuel immédiat au survol du bouton de planification */
     .btn-outline-success:hover {
         background-color: #28a745 !important;
         border-color: #28a745 !important;
         color: #ffffff !important;
     }
-
-    /**
-     * Conteneur de colonne journalière.
-     * Force une hauteur minimale harmonieuse pour éviter que les journées vides ne se rétractent.
-     */
     .border.bg-light {
         min-height: 400px !important;
         box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
     }
 </style>
+
 {% endblock %}

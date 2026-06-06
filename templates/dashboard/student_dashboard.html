@@ -104,19 +104,68 @@
                     </div>
                 </div>
                 
-                <!-- CARTE 3 : Indicateur d'état des ressources documentaires -->
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm rounded p-3 h-100 bg-white">
-                        <div class="card-body d-flex align-items-center p-2">
-                            <i class="fas fa-folder-open fa-2x text-info mr-3"></i>
-                            <div>
-                                <small class="text-muted text-uppercase d-block font-weight-bold">Bibliothèque</small>
-                                <span class="font-weight-bold text-dark h6 mb-0">0 ressource en ligne</span>
-                            </div>
+                <!-- ==========================================
+   BLOC : BIBLIOTHÈQUE DYNAMIQUE DE L'ÉTUDIANT
+   ========================================== -->
+<div class="card shadow-sm h-100 border-info">
+    <div class="card-header bg-info text-white font-weight-bold d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-book-reader mr-2"></i>Mes Supports de Cours en Ligne</span>
+        <!-- Badge affichant le total disponible en temps réel -->
+        <span class="badge badge-light text-info font-weight-bold">
+            {{ mes_ressources_cours.count }} disponible(s)
+        </span>
+    </div>
+    
+    <div class="card-body bg-white style="max-height: 400px; overflow-y: auto;">
+        
+        {% if mes_ressources_cours %}
+            <p class="text-muted small mb-3">
+                Voici les documents partagés par vos professeurs pour la filière <strong>{{ request.user.filiere.nom_filiere }}</strong> ({{ request.user.niveau_etude }}) :
+            </p>
+            
+            <div class="list-group">
+                {% for ressource in mes_ressources_cours %}
+                    <div class="list-group-item list-group-item-action border mb-2 rounded shadow-sm p-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <!-- Titre du document (ex: Algorithmique L1) -->
+                            <h6 class="mb-1 font-weight-bold text-dark text-truncate" style="max-width: 75%;" title="{{ ressource.titre_cours }}">
+                                <i class="fas fa-file-pdf text-danger mr-2"></i>{{ ressource.titre_cours }}
+                            </h6>
+                            <!-- Date de mise en ligne -->
+                            <small class="text-muted font-italic">
+                                {{ ressource.date_depot|date:"d/m/Y" }}
+                            </small>
+                        </div>
+                        
+                        <!-- Nom de l'enseignant qui a publié le cours -->
+                        <p class="mb-2 text-muted small mt-1">
+                            Enseignant : <strong class="text-secondary">M./Mme {{ ressource.enseignant.last_name }} {{ ressource.enseignant.first_name }}</strong>
+                        </p>
+                        
+                        <!-- Bouton de téléchargement direct du fichier -->
+                        <div class="text-right">
+                            <a href="{{ ressource.fichier.url }}" target="_blank" class="btn btn-sm btn-info text-white font-weight-bold px-3 rounded-pill">
+                                <i class="fas fa-cloud-download-alt mr-1"></i> Télécharger le support
+                            </a>
                         </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
+            
+        {% else %}
+            <!-- Rendu graphique de secours si aucun cours n'est encore partagé pour cette classe -->
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h6 class="text-dark font-weight-bold mb-1">Aucune ressource pour le moment</h6>
+                <p class="text-muted small px-3 mb-0">
+                    Votre bibliothèque numérique personnelle est vide. Aucun enseignant n'a encore déposé de support de cours pour la classe <strong>{{ request.user.filiere.nom_filiere }} {{ request.user.niveau_etude }}</strong>.
+                </p>
+            </div>
+        {% endif %}
+        
+    </div>
+</div>
+
 
             <!-- BLOC D'INFORMATIONS ET RÉCAPITULATIF DES DONNÉES DU COMPTE -->
             <div class="row mb-4">
