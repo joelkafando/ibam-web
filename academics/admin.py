@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Filiere, EmploiDuTemps
+from .models import RessourcePedagogique, DisponibiliteEnseignant
 
 # ==========================================
 # 1. CONFIGURATION DE L'ADMINISTRATION DES FILIÈRES
@@ -52,3 +53,18 @@ class EmploiDuTempsAdmin(admin.ModelAdmin):
             'fields': ('jour', 'heure_debut', 'heure_fin', 'salle')
         }),
     )
+
+# ==========================================
+# 3. ENREGISTREMENT DE LA BIBLIOTHÈQUE
+# ==========================================
+@admin.register(RessourcePedagogique)
+class RessourcePedagogiqueAdmin(admin.ModelAdmin):
+    list_display = ('titre_cours', 'enseignant', 'filiere', 'niveau_etude', 'date_depot')
+    list_filter = ('filiere', 'niveau_etude')
+    search_fields = ('titre_cours', 'enseignant__username')
+
+@admin.register(DisponibiliteEnseignant)
+class DisponibiliteEnseignantAdmin(admin.ModelAdmin):
+    list_display = ('enseignant', 'jour', 'periode', 'date_soumission')
+    list_filter = ('jour', 'periode')
+    search_fields = ('enseignant__username', 'note_complementaire')

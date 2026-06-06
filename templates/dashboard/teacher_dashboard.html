@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- ==========================================
+       1. EN-TÊTE DU PORTAIL ENSEIGNANT
+       ========================================== -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+            <h3 class="font-weight-bold text-dark mb-1">
+                <i class="fas fa-chalkboard-teacher text-success mr-2"></i>Espace Pédagogique
+            </h3>
+            <p class="text-muted small mb-0">
+                Bienvenue M./Mme <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong> ({{ request.user.username }}) sur votre intranet enseignant.
+            </p>
+        </div>
+        <div class="badge badge-warning p-2 font-weight-bold text-dark">
+            <i class="fas fa-user-lock mr-1"></i> Session Professeur Active
+        </div>
+    </div>
+
+    <!-- Affichage des messages d'alerte Django (Succès / Erreur) -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- ==========================================
+       2. RECONNAISSANCE DES NAVS (ONGLETS INTERACTIFS)
+       ========================================== -->
+    <ul class="nav nav-tabs font-weight-bold mb-4" id="teacherTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active text-success" id="planning-tab" data-toggle="tab" href="#planning" role="tab" aria-controls="planning" aria-selected="true">
+                <i class="fas fa-calendar-alt mr-2 text-warning"></i> Mon Emploi du Temps
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-success" id="depot-tab" data-toggle="tab" href="#depot" role="tab" aria-controls="depot" aria-selected="false">
+                <i class="fas fa-cloud-upload-alt mr-2 text-warning"></i> Bibliothèque & Dépôt de Cours
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-success" id="dispo-tab" data-toggle="tab" href="#dispo" role="tab" aria-controls="dispo" aria-selected="false">
+                <i class="fas fa-clock mr-2 text-warning"></i> Soumettre mes Disponibilités
+            </a>
+        </li>
+    </ul>
+
+    <!-- ==========================================
+       3. CONTENU DES ONGLETS
+       ========================================== -->
+    <div class="tab-content" id="teacherTabContent">
+        
+        <!-- ONGLET 1 : EMPLOI DU TEMPS -->
+        <div class="tab-pane fade show active" id="planning" role="tabpanel" aria-labelledby="planning-tab">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light font-weight-bold text-dark">
+                    <i class="fas fa-table mr-2 text-success"></i>Vos séances de cours planifiées
+                </div>
+                <div class="card-body">
+                    {% if mes_cours %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover text-center">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Jour</th>
+                                        <th>Horaire</th>
+                                        <th>Matière</th>
+                                        <th>Filière & Niveau</th>
+                                        <th>Salle</th>
+                                        <th>Période</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cours in mes_cours %}
+                                        <tr>
+                                            <td class="font-weight-bold text-success">{{ cours.get_jour_display }}</td>
+                                            <td><span class="badge badge-info">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</span></td>
+                                            <td class="font-weight-bold">{{ cours.nom_matiere }}</td>
+                                            <td>{{ cours.filiere.nom_filiere }} ({{ cours.niveau_etude }})</td>
+                                            <td><span class="badge badge-secondary">{{ cours.salle }}</span></td>
+                                            <td class="text-muted small">{{ cours.semaine_du }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Aucun cours ne vous est attribué dans la grille horaire actuelle.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET 2 : BIBLIOTHÈQUE & DÉPOT DE COURS -->
+        <div class="tab-pane fade" id="depot" role="tabpanel" aria-labelledby="depot-tab">
+            <div class="row">
+                <!-- Formulaire de dépôt -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-success">
+                        <div class="card-header bg-success text-white font-weight-bold">
+                            <i class="fas fa-file-upload mr-2"></i>Publier un nouveau support
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {{ form_cours.as_p }}
+                                <button type="submit" name="btn_depot_cours" class="btn btn-success btn-block font-weight-bold mt-3">
+                                    <i class="fas fa-paper-plane mr-2"></i>Mettre en ligne le document
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Historique des dépôts -->
+                <div class="col-md-7 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light font-weight-bold text-dark">
+                            <i class="fas fa-history mr-2 text-warning"></i>Historique de vos partages
+                        </div>
+                        <div class="card-body">
+                            {% if mes_depots %}
+                                <div class="list-group">
+                                    {% for depot in mes_depots %}
+                                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                                <h6 class="mb-1 font-weight-bold text-dark"><i class="far fa-file-pdf text-danger mr-2"></i>{{ depot.titre_cours }}</h6>
+                                                <small class="text-muted">{{ depot.date_depot|date:"d/m/Y H:i" }}</small>
+                                            </div>
+                                            <p class="mb-1 text-muted small">Classe cible : {{ depot.filiere.nom_filiere }} — <strong>{{ depot.niveau_etude }}</strong></p>
+                                            <a href="{{ depot.fichier.url }}" target="_blank" class="btn btn-sm btn-outline-info pt-0 pb-0 pl-2 pr-2 mt-1">
+                                                <i class="fas fa-download mr-1"></i> Consulter / Télécharger
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-4 mb-0">Vous n'avez pas encore téléversé de documents.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <!-- ONGLET 3 : TRANSMISSION DES DISPONIBILITÉS -->
+<div class="tab-pane fade" id="dispo" role="tabpanel" aria-labelledby="dispo-tab">
+    <div class="row">
+        <!-- Formulaire des disponibilités -->
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark font-weight-bold">
+                    <i class="fas fa-hourglass-half mr-2"></i>Déclarer un créneau libre
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form_dispo.as_p }}
+                        <button type="submit" name="btn_soumission_dispo" class="btn btn-warning btn-block font-weight-bold text-dark mt-3">
+                            <i class="fas fa-check mr-2"></i>Transmettre mes préférences
+                        </button>
+                    </form>
+                </div>
+            </div> <!-- CORRECTION : Fermeture de la div card shadow-sm -->
+        </div> <!-- CORRECTION : Fermeture de la div col-md-5 mb-4 -->
+
+        <!-- Suivi des soumissions -->
+        <div class="col-md-7 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light font-weight-bold text-dark">
+                    <i class="fas fa-clipboard-list mr-2 text-success"></i>Vos propositions horaires envoyées
+                </div>
+                <div class="card-body">
+                    {% if mes_dispos_soumises %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Jour proposé</th>
+                                        <th>Période horaire</th>
+                                        <th>Vos contraintes / Précisions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dispo in mes_dispos_soumises %}
+                                        <tr>
+                                            <td class="font-weight-bold text-dark">{{ dispo.get_jour_display }}</td>
+                                            <td><span class="badge badge-warning text-dark">{{ dispo.get_periode_display }}</span></td>
+                                            <td class="small text-muted text-left">
+                                                {% if dispo.note_complementaire %}
+                                                    {{ dispo.note_complementaire }}
+                                                {% else %}
+                                                    <span class="text-italic">Aucune contrainte spécifiée.</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-info-circle text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">Aucun planning préférentiel transmis pour le moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div> <!-- Fin de la row de l'onglet 3 -->
+</div> <!-- Fin de l'onglet 3 : dispo -->
+
+</div> <!-- Fin du tab-content global -->
+</div> <!-- Fin du container-fluid principal -->
+{% endblock %}

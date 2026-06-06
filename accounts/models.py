@@ -2,49 +2,46 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from academics.models import Filiere
 
-# ==========================================
-# MODÈLE UTILISATEUR PERSONNALISÉ (CUSTOM USER)
-# ==========================================
 class Utilisateur(AbstractUser):
-    # Liste des rôles disponibles pour segmenter les profils utilisateurs
     ROLE_CHOICES = [
         ('ADMIN', 'Administrateur'),
-       # ('ENSEIGNANT', 'Enseignant'),
+        ('ENSEIGNANT', 'Enseignant'),
         ('ETUDIANT', 'Étudiant'),
         ('ALUMNI', 'Alumni'),
     ]
+
+    CHOICES_NIVEAU = [
+        ('Licence 1', 'Licence 1'),
+        ('Licence 2', 'Licence 2'),
+        ('Licence 3', 'Licence 3'),
+        ('Master 1', 'Master 1'),
+        ('Master 2', 'Master 2'),
+    ]
     
-    # Première définition du champ filiere (avec verbose_name personnalisé)
+    role_user = models.CharField(max_length=20, choices=ROLE_CHOICES, default='ETUDIANT', verbose_name="Rôle")
+    
     filiere = models.ForeignKey(
         Filiere, 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
         related_name='utilisateurs',
-        verbose_name="Filière (Étudiants/Alumni)"
+        verbose_name="Filière"
+    )
+    
+    # Résolution du Problème N°2 : Ajout du champ pour le filtrage strict des flux étudiants
+    niveau_etude = models.CharField(
+        max_length=20, 
+        choices=CHOICES_NIVEAU, 
+        null=True, 
+        blank=True, 
+        verbose_name="Niveau d'études (Étudiants)"
     )
     
     def save(self, *args, **kwargs):
-        """
-        Surcharge de la méthode de sauvegarde pour automatiser des règles métiers.
-        """
-        # Automatisation : Si c'est un superutilisateur, son rôle devient ADMIN d'office
         if self.is_superuser:
             self.role_user = 'ADMIN'
-        # Exécution de la sauvegarde parente native de Django
         super().save(*args, **kwargs)
 
-    # Champ de sélection du rôle applicatif (Étudiant par défaut)
-    role_user = models.CharField(max_length=20, choices=ROLE_CHOICES, default='ETUDIANT')
-    
-    # Seconde définition du champ filiere (avec les options de base)
-    # Un étudiant ou un alumni appartient à une filière (optionnel pour les admins/enseignants)
-    filiere = models.ForeignKey(Filiere, on_delete=models.SET_NULL, null=True, blank=True, related_name='utilisateurs')
-
     def __str__(self):
-        """
-        Représentation textuelle affichant l'identifiant et le libellé du rôle.
-        """
         return f"{self.username} ({self.get_role_user_display()})"
-
-   

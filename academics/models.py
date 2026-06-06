@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings # Importation pour cibler proprement votre modèle utilisateur Utilisateur
 
 # ==========================================
 # 1. MODÈLE : FILIÈRE
@@ -79,7 +80,14 @@ class EmploiDuTemps(models.Model):
     
     # Informations sur le cours, l'intervenant et le lieu
     nom_matiere = models.CharField(max_length=150, verbose_name="Matière")
-    enseignant = models.CharField(max_length=100, verbose_name="Enseignant", help_text="Nom de l'enseignant")
+    
+    enseignant = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role_user': 'ENSEIGNANT'},
+        related_name='cours_planifies',
+        verbose_name="Enseignant"
+    )
     
     # Menu déroulant basé sur la liste JOURS_DE_LA_SEMAINE
     jour = models.CharField(max_length=10, choices=JOURS_DE_LA_SEMAINE, verbose_name="Jour de la semaine")
@@ -100,3 +108,91 @@ class EmploiDuTemps(models.Model):
     # Représentation textuelle de l'entrée d'emploi du temps
     def __str__(self):
         return f"{self.filiere.nom_filiere} - {self.nom_matiere} ({self.jour})"
+
+# ==========================================
+# 3. MODÈLE : BIBLIOTHÈQUE / RESSOURCES (CONFORME CDC 2.2.4)
+# ==========================================
+class RessourcePedagogique(models.Model):
+    """
+    Permet aux enseignants de téléverser des supports de cours (PDF, Docs).
+    Lien dynamique avec les filières et niveaux d'études de l'IBAM.
+    """
+    enseignant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='ressources_deposees',
+        verbose_name="Enseignant"
+    )
+    filiere = models.ForeignKey(
+        Filiere, 
+        on_delete=models.CASCADE, 
+        related_name='ressources_pedagogiques',
+        verbose_name="Filière ciblée"
+    )
+    # Réutilisation de votre liste de choix existante CHOICES_NIVEAU
+    niveau_etude = models.CharField(
+        max_length=20, 
+        choices=EmploiDuTemps.CHOICES_NIVEAU, 
+        verbose_name="Niveau d'études ciblé"
+    )
+    titre_cours = models.CharField(max_length=150, verbose_name="Titre du support de cours")
+    
+    # Champ de téléversement réel (les fichiers seront stockés dans le dossier media/cours_supports/)
+    fichier = models.FileField(upload_to='cours_supports/', verbose_name="Fichier du cours (PDF, Word, etc.)")
+    date_depot = models.DateTimeField(auto_now_add=True, verbose_name="Date de dépôt")
+
+    class Meta:
+        verbose_name = "Ressource Pédagogique"
+        verbose_name_plural = "Ressources Pédagogiques"
+        ordering = ['-date_depot']
+
+    def __str__(self):
+        return f"{self.titre_cours} - {self.filiere.nom_filiere} ({self.niveau_etude})"
+
+
+# ==========================================
+# 4. MODÈLE : DISPONIBILITÉS ENSEIGNANTS (CONFORME CDC 2.2.2)
+# ==========================================
+class DisponibiliteEnseignant(models.Model):
+    """
+    Permet aux professeurs de soumettre leurs créneaux libres à l'administration
+    pour faciliter la conception des emplois du temps.
+    """
+    CHOICES_PERIODE = [
+        ('MATIN', 'Matin (07h00 - 12h00)'),
+        ('APRES_MIDI', 'Après-midi (13h00 - 18h00)'),
+        ('JOURNEE', 'Journée complète'),
+    ]
+
+    enseignant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='disponibilites_soumises',
+        verbose_name="Enseignant"
+    )
+    # Réutilisation de votre liste de choix existante JOURS_DE_LA_SEMAINE
+    jour = models.CharField(
+        max_length=10, 
+        choices=EmploiDuTemps.JOURS_DE_LA_SEMAINE, 
+        verbose_name="Jour proposé"
+    )
+    periode = models.CharField(
+        max_length=15, 
+        choices=CHOICES_PERIODE, 
+        verbose_name="Créneau horaire"
+    )
+    note_complementaire = models.TextField(
+        blank=True, 
+        null=True, 
+        verbose_name="Précisions ou contraintes particulières",
+        help_text="Ex: Seulement libre à partir de 15h00 ce jour-là."
+    )
+    date_soumission = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Disponibilité Enseignant"
+        verbose_name_plural = "Disponibilités Enseignants"
+        ordering = ['jour']
+
+    def __str__(self):
+        return f"Dispo {self.enseignant.username} - {self.get_jour_display()} ({self.get_periode_display()})"
