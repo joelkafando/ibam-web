@@ -1,52 +1,120 @@
 {% extends 'base.html' %}
+{# Héritage du template de base : ce fichier étend la structure commune (navbar, footer, CSS global) #}
 
 {% block content %}
-<div class="container-fluid my-4">
+{# Ouverture du bloc "content" : tout le contenu spécifique à cette page s'insère ici #}
 
-    <!-- EN-TÊTE DE LA PAGE -->
+<div class="container-fluid my-4">
+{# Conteneur Bootstrap pleine largeur avec marges verticales de 4 unités #}
+
+
+    <!-- ===================== EN-TÊTE DE LA PAGE ===================== -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-calendar-alt text-success mr-2"></i> Gestion Graphique du Planning - IBAM</h2>
+    {# Flexbox Bootstrap : espace les deux éléments aux extrémités, centrés verticalement #}
+
+        <h2>
+            <i class="fas fa-calendar-alt text-success mr-2"></i>
+            {# Icône FontAwesome calendrier, colorée en vert, avec marge droite de 2 unités #}
+            Gestion Graphique du Planning - IBAM
+        </h2>
+
         <a href="/dashboard/portail/administration/" class="btn btn-secondary rounded-pill btn-sm">
+        {# Lien de retour vers le portail admin, stylisé en bouton Bootstrap arrondi #}
             <i class="fas fa-arrow-left mr-1"></i> Portail Administration
         </a>
     </div>
 
-    <!-- ZONE D'AFFICHAGE DES MESSAGES ALERTE DJANGO -->
+
+    <!-- ===================== ZONE DES MESSAGES FLASH DJANGO ===================== -->
     {% if messages %}
+    {# Vérifie si Django a des messages flash à afficher (succès, erreurs, avertissements) #}
+
         {% for message in messages %}
+        {# Boucle sur chaque message enregistré dans la file de messages Django #}
+
             <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {#
+                Alerte Bootstrap dynamique :
+                - Si le tag du message est "error", on utilise la classe Bootstrap "danger" (rouge)
+                - Sinon on utilise directement le tag Django comme classe Bootstrap (success, warning, info...)
+                - "alert-dismissible fade show" : rend l'alerte fermable avec animation
+            #}
                 {{ message }}
+                {# Affichage du texte du message flash #}
+
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                {# Bouton de fermeture de l'alerte, géré par Bootstrap via data-dismiss #}
                     <span aria-hidden="true">&times;</span>
+                    {# Symbole "×" masqué aux lecteurs d'écran (aria-hidden) pour l'accessibilité #}
                 </button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <!-- FORMULAIRE DE FILTRAGE PAR CLASSE (FILIÈRE + NIVEAU) -->
+
+    <!-- ===================== FORMULAIRE DE FILTRAGE (FILIÈRE + NIVEAU) ===================== -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
+    {# Carte Bootstrap sans bordure, avec ombre légère et coins arrondis #}
+
         <div class="card-body bg-light">
+        {# Corps de la carte avec fond gris clair #}
+
             <form method="GET" class="form-row align-items-end">
+            {# Formulaire GET : les filtres passent dans l'URL (pas de données sensibles) #}
+            {# "form-row" : grille Bootstrap horizontale ; "align-items-end" : alignement bas #}
+
                 <div class="form-group col-md-4 mb-0">
+                {# Groupe de formulaire occupant 4/12 colonnes sur écran médium et plus #}
+
                     <label class="font-weight-bold small text-uppercase text-muted">Filière</label>
+                    {# Label stylisé : gras, petite taille, majuscules, couleur grise #}
+
                     <select name="filiere_id" class="form-control rounded-pill" required>
+                    {# Menu déroulant avec le name "filiere_id" récupéré dans la vue via request.GET #}
+                    {# "required" : empêche la soumission si aucune filière n'est choisie #}
+
                         <option value="">-- Choisir une filière --</option>
+                        {# Option vide par défaut pour forcer un choix explicite #}
+
                         {% for f in filieres %}
-                            <option value="{{ f.pk }}" {% if filiere_selectionnee.pk == f.pk %}selected{% endif %}>{{ f.nom_filiere }}</option>
+                        {# Boucle sur la liste des filières transmises depuis la vue Django #}
+
+                            <option value="{{ f.pk }}" {% if filiere_selectionnee.pk == f.pk %}selected{% endif %}>
+                            {#
+                                Chaque option a pour valeur l'identifiant primaire de la filière
+                                Si la filière correspond à celle déjà sélectionnée, "selected" la pré-coche
+                            #}
+                                {{ f.nom_filiere }}
+                                {# Affichage du nom lisible de la filière #}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
+
                 <div class="form-group col-md-4 mb-0">
+                {# Deuxième colonne : sélection du niveau d'études #}
+
                     <label class="font-weight-bold small text-uppercase text-muted">Niveau d'études</label>
+
                     <select name="niveau_etude" class="form-control rounded-pill" required>
+                    {# Menu déroulant pour le niveau, obligatoire avant soumission #}
+
                         <option value="">-- Choisir le niveau --</option>
+
                         {% for n in choices_niveau %}
+                        {# Boucle sur les choix de niveaux transmis depuis la vue (ex: Licence 1, Licence 2...) #}
+
                             <option value="{{ n }}" {% if niveau_selectionne == n %}selected{% endif %}>{{ n }}</option>
+                            {# Pré-sélection du niveau déjà choisi lors d'un rechargement de la page #}
                         {% endfor %}
                     </select>
                 </div>
+
                 <div class="form-group col-md-4 mb-0">
+                {# Troisième colonne : bouton de soumission du filtre #}
+
                     <button type="submit" class="btn btn-success rounded-pill btn-block">
+                    {# "btn-block" : le bouton occupe toute la largeur de sa colonne #}
                         <i class="fas fa-sync mr-1"></i> Charger le Planning Réel
                     </button>
                 </div>
@@ -54,108 +122,219 @@
         </div>
     </div>
 
-    <!-- BLOC CONDITIONNEL MAÎTRE : S'ACTIVE SI UNE RECHERCHE EST EFFECTUÉE -->
-    {% if filiere_selectionnee and niveau_selectionne %}
 
-        <!-- GRILLE DE VISUALISATION DU PLANNING -->
+    <!-- ===================== BLOC MAÎTRE : ACTIF UNIQUEMENT APRÈS FILTRAGE ===================== -->
+    {% if filiere_selectionnee and niveau_selectionne %}
+    {# Condition double : affiche la grille uniquement si une filière ET un niveau sont sélectionnés #}
+
+
+        <!-- ===================== GRILLE DE VISUALISATION DU PLANNING ===================== -->
         <div class="card border-0 shadow-sm rounded-3">
+
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">{{ filiere_selectionnee.nom_filiere }} — <strong>{{ niveau_selectionne }}</strong></h5>
+            {# En-tête de carte foncée avec titre et badge de semaine alignés horizontalement #}
+
+                <h5 class="mb-0">
+                    {{ filiere_selectionnee.nom_filiere }} — <strong>{{ niveau_selectionne }}</strong>
+                    {# Affiche le nom de la filière et le niveau sélectionnés comme titre de la grille #}
+                </h5>
+
                 <span class="badge badge-warning p-2">Semaine : {{ periode_semaine }}</span>
+                {# Badge jaune indiquant la semaine en cours transmise depuis la vue #}
             </div>
 
             <div class="card-body p-3">
                 <div class="row">
+
                     {% for jour_data in grille_html %}
-                    <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                    {# Boucle sur chaque jour de la semaine transmis depuis la vue (lundi → samedi) #}
+                    {# Chaque "jour_data" est un dictionnaire contenant le nom du jour et la liste des cours #}
 
-                        <!-- Libellé du Jour -->
-                        <div class="p-2 text-center text-white font-weight-bold rounded-top bg-success small text-uppercase">
-                            {{ jour_data.nom_jour }}
+                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                        {#
+                            Colonne responsive Bootstrap :
+                            - xl : 2/12 colonnes → 6 jours côte à côte sur grand écran
+                            - md : 4/12 colonnes → 3 jours par ligne sur écran moyen
+                            - sm : 6/12 colonnes → 2 jours par ligne sur petit écran
+                        #}
+
+                            <!-- Libellé du jour (ex: LUNDI, MARDI...) -->
+                            <div class="p-2 text-center text-white font-weight-bold rounded-top bg-success small text-uppercase">
+                            {# Bandeau vert en haut de chaque colonne-jour, texte blanc centré en majuscules #}
+                                {{ jour_data.nom_jour }}
+                                {# Nom du jour extrait du dictionnaire jour_data #}
+                            </div>
+
+                            <!-- Conteneur des cartes de cours du jour -->
+                            <div class="border border-top-0 p-2 bg-light rounded-bottom" style="min-height: 350px;">
+                            {# Zone grise avec bordure (sans le haut déjà couvert par le bandeau vert) #}
+                            {# min-height garantit une hauteur minimale même si le jour n'a aucun cours #}
+
+                                {% if jour_data.cours_liste %}
+                                {# Vérifie si au moins un cours est planifié pour ce jour #}
+
+                                    {% for cours in jour_data.cours_liste %}
+                                    {# Boucle sur chaque cours du jour pour afficher une carte par cours #}
+
+                                        <div class="card border-0 shadow-sm mb-2 p-2 position-relative" style="border-left: 4px solid #ffc107 !important; font-size: 13px;">
+                                        {#
+                                            Carte de cours :
+                                            - "position-relative" : permet le positionnement absolu des boutons modifier/supprimer
+                                            - Bordure gauche jaune (ffc107) : repère visuel distinctif par cours
+                                        #}
+
+                                            <!-- Bouton de suppression rapide (croix rouge en haut à droite) -->
+                                            <form action="{% url 'academics:supprimer_cours_rapide' cours.pk %}" method="POST" class="position-absolute" style="top: 2px; right: 8px; z-index: 9999;">
+                                            {#
+                                                Formulaire POST minimal pour supprimer ce cours précis
+                                                "position-absolute" + z-index élevé : flotte au-dessus du contenu
+                                                "cours.pk" : identifiant unique du cours passé dans l'URL de suppression
+                                            #}
+                                                {% csrf_token %}
+                                                {# Jeton de sécurité Django obligatoire pour tout formulaire POST #}
+
+                                                <button type="submit"
+                                                        class="btn btn-link p-0 border-0 text-decoration-none font-weight-bold"
+                                                        style="color: #dc3545 !important; font-size: 20px; line-height: 1; opacity: 0.8;"
+                                                        onclick="return confirm('Voulez-vous vraiment supprimer ce cours du planning ?')">
+                                                {#
+                                                    Bouton invisible stylisé en croix rouge
+                                                    "onclick=confirm()" : demande une confirmation avant suppression
+                                                    Si l'utilisateur clique "Annuler", return false empêche la soumission
+                                                #}
+                                                    &times;
+                                                    {# Entité HTML pour le symbole "×" (croix de fermeture) #}
+                                                </button>
+                                            </form>
+
+                                            <!-- Bouton de modification (crayon en haut à droite, à gauche de la croix) -->
+                                            <button type="button"
+                                                    class="btn btn-link p-0 text-warning position-absolute btn-modifier-cours"
+                                                    style="top: 3px; right: 28px; z-index: 9999; font-size: 14px; text-decoration: none;"
+                                                    data-toggle="modal" data-target="#modalAjoutCours"
+                                                    {# Déclenche l'ouverture de la modale Bootstrap #}
+                                                    data-id="{{ cours.pk }}"
+                                                    {# ID du cours : transmis à la modale pour distinguer ajout (vide) et modification (rempli) #}
+                                                    data-jour="{{ jour_data.nom_jour }}"
+                                                    {# Nom du jour pré-rempli dans la modale #}
+                                                    data-debut="{{ cours.heure_debut|time:'H:i' }}"
+                                                    {# Heure de début formatée HH:MM via le filtre Django "time" #}
+                                                    data-fin="{{ cours.heure_fin|time:'H:i' }}"
+                                                    {# Heure de fin formatée HH:MM #}
+                                                    data-semaine="{{ cours.semaine_du }}"
+                                                    {# Période/semaine du cours pour pré-remplissage #}
+                                                    data-matiere="{{ cours.nom_matiere }}"
+                                                    {# Nom de la matière pour pré-remplissage #}
+                                                    data-enseignant="{{ cours.enseignant.pk }}"
+                                                    {# ID de l'enseignant pour présélectionner dans le select de la modale #}
+                                                    data-salle="{{ cours.salle }}">
+                                                    {# Salle pour pré-remplissage dans la modale #}
+                                                ✏️
+                                            </button>
+
+                                            <!-- Nom de la matière (titre de la carte de cours) -->
+                                            <div class="font-weight-bold text-dark mb-1 pr-4">{{ cours.nom_matiere }}</div>
+                                            {# "pr-4" : padding droit pour éviter que le texte passe sous les boutons #}
+
+                                            <!-- Nom de l'enseignant -->
+                                            <div class="text-muted small">
+                                                <i class="fas fa-user-tie text-success mr-1"></i>
+                                                {% if cours.enseignant.last_name %}
+                                                    {{ cours.enseignant.last_name|upper }} {{ cours.enseignant.first_name }}
+                                                    {# Si l'enseignant a un nom de famille, affiche NOM Prénom #}
+                                                    {# Le filtre "|upper" met le nom de famille en majuscules #}
+                                                {% else %}
+                                                    {{ cours.enseignant.username }}
+                                                    {# Fallback : si pas de nom complet, affiche le nom d'utilisateur Django #}
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Horaires du cours -->
+                                            <div class="text-primary font-weight-bold my-1">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}
+                                                {# Formatage des heures en "HH:MM" via le filtre Django "time" #}
+                                            </div>
+
+                                            <!-- Salle de cours -->
+                                            <div class="text-secondary small">
+                                                <i class="fas fa-map-marker-alt text-danger mr-1"></i>
+                                                {{ cours.salle }}
+                                                {# Nom ou numéro de la salle où se déroule le cours #}
+                                            </div>
+
+                                        </div>
+                                    {% endfor %}
+
+                                {% else %}
+                                    <div class="text-center text-muted small py-4">Aucun cours</div>
+                                    {# Message affiché si aucun cours n'est planifié pour ce jour #}
+                                {% endif %}
+
+                                <!-- Bouton d'ajout d'un cours pour ce jour spécifique -->
+                                <button type="button"
+                                        class="btn btn-outline-success btn-sm btn-block rounded-pill mt-2"
+                                        data-toggle="modal" data-target="#modalAjoutCours"
+                                        data-jour="{{ jour_data.nom_jour }}">
+                                {#
+                                    Ouvre la modale en mode "ajout" (sans data-id)
+                                    "data-jour" pré-sélectionne le jour dans le select de la modale
+                                #}
+                                    <i class="fas fa-plus-circle"></i> Programmer
+                                </button>
+                            </div>
                         </div>
-
-                        <!-- Conteneur des cartes de cours -->
-                        <div class="border border-top-0 p-2 bg-light rounded-bottom" style="min-height: 350px;">
-
-                            {% if jour_data.cours_liste %}
-                                {% for cours in jour_data.cours_liste %}
-                                <div class="card border-0 shadow-sm mb-2 p-2 position-relative" style="border-left: 4px solid #ffc107 !important; font-size: 13px;">
-
-                                    <!-- Formulaire de suppression rapide (Croix rouge) -->
-                                    <form action="{% url 'academics:supprimer_cours_rapide' cours.pk %}" method="POST" class="position-absolute" style="top: 2px; right: 8px; z-index: 9999;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0 border-0 text-decoration-none font-weight-bold"
-                                                style="color: #dc3545 !important; font-size: 20px; line-height: 1; opacity: 0.8;"
-                                                onclick="return confirm('Voulez-vous vraiment supprimer ce cours du planning ?')">
-                                            &times;
-                                        </button>
-                                    </form>
-
-                                    <!-- Bouton Modifier : transmet toutes les données du cours -->
-                                    <button type="button" class="btn btn-link p-0 text-warning position-absolute btn-modifier-cours"
-                                            style="top: 3px; right: 28px; z-index: 9999; font-size: 14px; text-decoration: none;"
-                                            data-toggle="modal" data-target="#modalAjoutCours"
-                                            data-id="{{ cours.pk }}"
-                                            data-jour="{{ jour_data.nom_jour }}"
-                                            data-debut="{{ cours.heure_debut|time:'H:i' }}"
-                                            data-fin="{{ cours.heure_fin|time:'H:i' }}"
-                                            data-semaine="{{ cours.semaine_du }}"
-                                            data-matiere="{{ cours.nom_matiere }}"
-                                            data-enseignant="{{ cours.enseignant.pk }}"
-                                            data-salle="{{ cours.salle }}">
-                                        ✏️
-                                    </button>
-
-                                    <!-- Détails textuels du cours programmé -->
-                                    <div class="font-weight-bold text-dark mb-1 pr-4">{{ cours.nom_matiere }}</div>
-                                    <div class="text-muted small">
-                                        <i class="fas fa-user-tie text-success mr-1"></i>
-                                        {% if cours.enseignant.last_name %}{{ cours.enseignant.last_name|upper }} {{ cours.enseignant.first_name }}{% else %}{{ cours.enseignant.username }}{% endif %}
-                                    </div>
-                                    <div class="text-primary font-weight-bold my-1">
-                                        <i class="far fa-clock mr-1"></i>{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}
-                                    </div>
-                                    <div class="text-secondary small">
-                                        <i class="fas fa-map-marker-alt text-danger mr-1"></i>{{ cours.salle }}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="text-center text-muted small py-4">Aucun cours</div>
-                            {% endif %}
-
-                            <!-- Bouton d'ajout lié au jour en cours -->
-                            <button type="button" class="btn btn-outline-success btn-sm btn-block rounded-pill mt-2"
-                                    data-toggle="modal" data-target="#modalAjoutCours"
-                                    data-jour="{{ jour_data.nom_jour }}">
-                                <i class="fas fa-plus-circle"></i> Programmer
-                            </button>
-                        </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
 
-        <!-- MODALE UNIQUE D'AJOUT ET DE MODIFICATION DE COURS -->
+
+        <!-- ===================== MODALE : AJOUT ET MODIFICATION DE COURS ===================== -->
         <div class="modal fade" id="modalAjoutCours" tabindex="-1" role="dialog" aria-hidden="true">
+        {#
+            Modale Bootstrap réutilisable pour deux actions :
+            - Ajout : cours_id vide → création d'un nouveau cours
+            - Modification : cours_id rempli → mise à jour d'un cours existant
+        #}
+
             <div class="modal-dialog modal-dialog-centered" role="document">
+            {# "modal-dialog-centered" : centre la modale verticalement dans la fenêtre #}
+
                 <div class="modal-content border-0 shadow">
+
                     <div class="modal-header bg-success text-white">
+                    {# En-tête verte avec titre dynamique (modifié par JavaScript selon le mode) #}
+
                         <h5 class="modal-title" id="modal_titre">
+                        {# L'ID "modal_titre" est ciblé par le JavaScript pour changer le titre #}
                             <i class="fas fa-plus-square mr-2"></i> Ajouter une Planification
                         </h5>
+
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        {# Bouton de fermeture de la modale sans soumission du formulaire #}
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{% url 'academics:ajouter_cours_rapide' %}" method="POST">
-                        {% csrf_token %}
 
-                        <!-- Champ caché unique pour l'ID du cours (vide = création, rempli = modification) -->
+                    <form action="{% url 'academics:ajouter_cours_rapide' %}" method="POST">
+                    {# Formulaire POST vers la vue qui gère à la fois la création et la modification #}
+                        {% csrf_token %}
+                        {# Jeton de sécurité Django obligatoire pour tout formulaire POST #}
+
+                        <!-- Champs cachés : transmettent le contexte sans les afficher à l'utilisateur -->
                         <input type="hidden" name="cours_id" id="modal_input_cours_id" value="">
+                        {#
+                            Champ caché pour l'ID du cours :
+                            - Vide : la vue crée un nouveau cours
+                            - Rempli par JS : la vue met à jour le cours existant
+                        #}
+
                         <input type="hidden" name="filiere_id" value="{{ filiere_selectionnee.pk }}">
+                        {# Transmet l'identifiant de la filière sélectionnée pour rattacher le cours à la bonne classe #}
+
                         <input type="hidden" name="niveau_etude" value="{{ niveau_selectionne }}">
+                        {# Transmet le niveau d'études sélectionné (ex: Licence 2) #}
 
                         <div class="modal-body">
 
@@ -163,6 +342,7 @@
                             <div class="form-group">
                                 <label class="small font-weight-bold">Jour de la semaine</label>
                                 <select name="jour" id="modal_input_jour" class="form-control rounded-pill text-uppercase font-weight-bold border-success text-success" required>
+                                {# Le JavaScript sélectionne automatiquement le bon jour via l'ID "modal_input_jour" #}
                                     <option value="LUNDI">Lundi</option>
                                     <option value="MARDI">Mardi</option>
                                     <option value="MERCREDI">Mercredi</option>
@@ -175,144 +355,218 @@
                             <!-- Période / Semaine -->
                             <div class="form-group">
                                 <label class="small font-weight-bold">Période / Semaine</label>
-                                <input type="text" name="semaine_du" id="modal_input_semaine" class="form-control rounded-pill" value="{{ periode_semaine }}" required>
+                                <input type="text" name="semaine_du" id="modal_input_semaine"
+                                       class="form-control rounded-pill"
+                                       value="{{ periode_semaine }}"
+                                       {# Pré-rempli avec la semaine actuelle transmise depuis la vue #}
+                                       required>
                             </div>
 
                             <!-- Nom de la matière -->
                             <div class="form-group">
                                 <label class="small font-weight-bold">Matière</label>
-                                <input type="text" name="nom_matiere" id="modal_input_matiere" class="form-control rounded-pill" placeholder="Ex: Bases de Données" required>
+                                <input type="text" name="nom_matiere" id="modal_input_matiere"
+                                       class="form-control rounded-pill"
+                                       placeholder="Ex: Bases de Données"
+                                       {# Placeholder effacé et remplacé par la valeur réelle en mode modification (JS) #}
+                                       required>
                             </div>
 
                             <!-- Sélection de l'enseignant -->
                             <div class="form-group">
                                 <label class="small font-weight-bold">Enseignant</label>
                                 <select name="enseignant" id="modal_input_enseignant" class="form-control rounded-pill" required>
+                                {# L'ID "modal_input_enseignant" est ciblé par JS pour présélectionner l'enseignant en mode modification #}
                                     <option value="">-- Sélectionnez l'enseignant --</option>
                                     {% for prof in tous_les_profs %}
+                                    {# Boucle sur tous les enseignants transmis depuis la vue Django #}
                                         <option value="{{ prof.id }}">
-                                            {% if prof.last_name %}{{ prof.last_name|upper }} {{ prof.first_name }}{% else %}{{ prof.username }}{% endif %}
+                                        {# La valeur est l'ID de l'utilisateur enseignant #}
+                                            {% if prof.last_name %}
+                                                {{ prof.last_name|upper }} {{ prof.first_name }}
+                                                {# Affiche NOM Prénom si disponibles #}
+                                            {% else %}
+                                                {{ prof.username }}
+                                                {# Fallback sur le nom d'utilisateur #}
+                                            {% endif %}
                                         </option>
                                     {% endfor %}
                                 </select>
                             </div>
 
-                            <!-- Créneaux horaires -->
+                            <!-- Créneaux horaires (deux colonnes côte à côte) -->
                             <div class="form-row">
+                            {# "form-row" : grille Bootstrap pour aligner les deux champs d'heure #}
+
                                 <div class="form-group col-6">
+                                {# Colonne gauche : heure de début #}
                                     <label class="small font-weight-bold">Heure de début</label>
-                                    <input type="time" name="heure_debut" id="modal_input_debut" class="form-control rounded-pill" required>
+                                    <input type="time" name="heure_debut" id="modal_input_debut"
+                                           class="form-control rounded-pill" required>
+                                    {# "type=time" : sélecteur d'heure natif du navigateur (format HH:MM) #}
                                 </div>
+
                                 <div class="form-group col-6">
+                                {# Colonne droite : heure de fin #}
                                     <label class="small font-weight-bold">Heure de fin</label>
-                                    <input type="time" name="heure_fin" id="modal_input_fin" class="form-control rounded-pill" required>
+                                    <input type="time" name="heure_fin" id="modal_input_fin"
+                                           class="form-control rounded-pill" required>
                                 </div>
                             </div>
 
                             <!-- Salle de cours -->
                             <div class="form-group">
                                 <label class="small font-weight-bold">Salle de cours</label>
-                                <input type="text" name="salle" id="modal_input_salle" class="form-control rounded-pill" placeholder="Ex: Salle B6" required>
+                                <input type="text" name="salle" id="modal_input_salle"
+                                       class="form-control rounded-pill"
+                                       placeholder="Ex: Salle B6"
+                                       required>
                             </div>
 
                         </div>
 
                         <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-success rounded-pill btn-sm px-4">Enregistrer</button>
+                        {# Pied de modale avec fond gris clair #}
+
+                            <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-dismiss="modal">
+                            {# Bouton "Annuler" : ferme la modale sans soumettre le formulaire #}
+                                Annuler
+                            </button>
+
+                            <button type="submit" class="btn btn-success rounded-pill btn-sm px-4">
+                            {# Bouton de soumission du formulaire (création ou modification selon cours_id) #}
+                                Enregistrer
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
+
     {% else %}
-    <!-- MESSAGE SI AUCUNE RECHERCHE EFFECTUÉE -->
-    <div class="alert alert-info text-center py-4 border-0 shadow-sm rounded-3">
-        <i class="fas fa-arrow-up fa-2x mb-2 d-block text-info"></i>
-        Sélectionnez une filière et un niveau d'études ci-dessus pour charger l'interface de gestion du planning.
-    </div>
+    {# Bloc affiché si aucun filtre n'a encore été soumis (première visite de la page) #}
+
+        <div class="alert alert-info text-center py-4 border-0 shadow-sm rounded-3">
+        {# Alerte Bootstrap bleue (info) centrée, invitant l'utilisateur à sélectionner un filtre #}
+            <i class="fas fa-arrow-up fa-2x mb-2 d-block text-info"></i>
+            {# Flèche vers le haut indiquant visuellement que le filtre se trouve au-dessus #}
+            Sélectionnez une filière et un niveau d'études ci-dessus pour charger l'interface de gestion du planning.
+        </div>
     {% endif %}
 
 </div>
+{# Fermeture du container-fluid principal #}
 
-<!-- ============================================================
-     JAVASCRIPT : GESTION DE LA MODALE (AJOUT + MODIFICATION)
-     ============================================================ -->
+
+<!-- ===================== JAVASCRIPT : GESTION DE LA MODALE ===================== -->
 <script>
+
+// Écouteur d'événement Bootstrap déclenché juste avant l'ouverture de la modale
 $('#modalAjoutCours').on('show.bs.modal', function (event) {
+
+    // Récupération du bouton déclencheur (celui sur lequel l'utilisateur a cliqué)
     var button = $(event.relatedTarget);
+
+    // Référence à l'objet modale pour agir sur ses éléments internes
     var modal = $(this);
 
-    // Récupération des data-* du bouton déclencheur
-    var coursId  = button.data('id')       || '';
-    var jour     = button.data('jour')     || '';
-    var debut    = button.data('debut')    || '';
-    var fin      = button.data('fin')      || '';
-    var semaine  = button.data('semaine')  || '';
-    var matiere  = button.data('matiere')  || '';
-    var enseignant = button.data('enseignant') || '';
-    var salle    = button.data('salle')    || '';
+    // Lecture des attributs "data-*" du bouton déclencheur
+    // "|| ''" : valeur par défaut vide si l'attribut n'est pas défini (ex: bouton "Programmer")
+    var coursId    = button.data('id')         || '';  // ID du cours (vide = ajout, rempli = modif)
+    var jour       = button.data('jour')       || '';  // Nom du jour (ex: LUNDI)
+    var debut      = button.data('debut')      || '';  // Heure de début (ex: 08:00)
+    var fin        = button.data('fin')        || '';  // Heure de fin (ex: 10:00)
+    var semaine    = button.data('semaine')    || '';  // Période / semaine
+    var matiere    = button.data('matiere')    || '';  // Nom de la matière
+    var enseignant = button.data('enseignant') || '';  // ID de l'enseignant
+    var salle      = button.data('salle')      || '';  // Nom ou numéro de salle
 
-    // Injection des valeurs dans la modale
+    // Injection des valeurs récupérées dans les champs correspondants de la modale
     modal.find('#modal_input_cours_id').val(coursId);
-    modal.find('#modal_input_semaine').val(semaine || '{{ periode_semaine }}');
-    modal.find('#modal_input_debut').val(debut);
-    modal.find('#modal_input_fin').val(fin);
-    modal.find('#modal_input_matiere').val(matiere);
-    modal.find('#modal_input_salle').val(salle);
+    // Champ caché "cours_id" : détermine si la vue créera ou mettra à jour un cours
 
-    // Sélection du jour dans la liste déroulante
+    modal.find('#modal_input_semaine').val(semaine || '{{ periode_semaine }}');
+    // Si la semaine du bouton est vide (mode ajout), on utilise la semaine en cours du contexte Django
+
+    modal.find('#modal_input_debut').val(debut);       // Pré-remplissage de l'heure de début
+    modal.find('#modal_input_fin').val(fin);           // Pré-remplissage de l'heure de fin
+    modal.find('#modal_input_matiere').val(matiere);   // Pré-remplissage du nom de la matière
+    modal.find('#modal_input_salle').val(salle);       // Pré-remplissage de la salle
+
+    // Sélection du jour dans la liste déroulante si un jour est fourni
     if (jour) {
         modal.find('#modal_input_jour').val(jour.toUpperCase());
+        // ".toUpperCase()" : s'assure que la valeur correspond aux options en majuscules (LUNDI, MARDI...)
     }
 
-    // Sélection de l'enseignant dans le select
+    // Sélection de l'enseignant dans le menu déroulant si un ID est fourni
     if (enseignant) {
         modal.find('#modal_input_enseignant').val(enseignant);
+        // jQuery sélectionne automatiquement l'option dont la valeur correspond à l'ID
     }
 
-    // Adaptation du titre selon le mode (ajout ou modification)
+    // Adaptation du titre et du comportement de la modale selon le mode détecté
     if (coursId) {
+        // MODE MODIFICATION : un ID de cours est présent
         modal.find('#modal_titre').html('<i class="fas fa-edit mr-2"></i> Modifier la Planification');
+        // Changement du titre et de l'icône pour signaler le mode modification
     } else {
+        // MODE CRÉATION : aucun ID de cours (bouton "Programmer" d'un jour vide)
         modal.find('#modal_titre').html('<i class="fas fa-plus-square mr-2"></i> Ajouter une Planification');
+        // Réinitialisation du titre pour le mode ajout
 
-        // Réinitialisation des champs en mode création
-        modal.find('#modal_input_matiere').val('');
-        modal.find('#modal_input_enseignant').val('');
-        modal.find('#modal_input_debut').val('');
-        modal.find('#modal_input_fin').val('');
-        modal.find('#modal_input_salle').val('');
+        // Vidage de tous les champs pour partir d'un formulaire propre
+        modal.find('#modal_input_matiere').val('');     // Efface le nom de la matière
+        modal.find('#modal_input_enseignant').val(''); // Réinitialise le select enseignant
+        modal.find('#modal_input_debut').val('');       // Efface l'heure de début
+        modal.find('#modal_input_fin').val('');         // Efface l'heure de fin
+        modal.find('#modal_input_salle').val('');       // Efface la salle
     }
 });
 </script>
 
-<!-- ============================================================
-     STYLES CSS LOCAUX
-     ============================================================ -->
+
+<!-- ===================== STYLES CSS LOCAUX ===================== -->
 <style>
+    /* Animation de survol des cartes de cours : légère élévation au passage de la souris */
     .card.position-relative {
         transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        /* "transition" : animation fluide sur 150ms pour la transformation et l'ombre */
     }
     .card.position-relative:hover {
         transform: translateY(-2px);
+        /* Décalage vers le haut de 2px au survol : effet "carte qui se soulève" */
         box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+        /* Ombre portée plus marquée au survol pour renforcer l'effet de profondeur */
     }
+
+    /* Style amélioré pour le bouton d'ajout de cours par jour */
     .btn-outline-success {
         border-width: 1.5px;
+        /* Bordure légèrement plus épaisse que la valeur par défaut Bootstrap (1px) */
         font-weight: 600;
+        /* Texte semi-gras pour plus de lisibilité */
         transition: all 0.2s ease;
+        /* Transition fluide sur toutes les propriétés au survol */
     }
     .btn-outline-success:hover {
         background-color: #28a745 !important;
+        /* Fond vert plein au survol (remplace le fond transparent) */
         border-color: #28a745 !important;
+        /* Bordure de la même couleur verte au survol */
         color: #ffffff !important;
+        /* Texte blanc pour contraste optimal sur fond vert */
     }
+
+    /* Style de la zone conteneur des cartes de cours */
     .border.bg-light {
         min-height: 400px !important;
+        /* Hauteur minimale garantie même si la colonne est vide */
         box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        /* Ombre intérieure très légère pour donner une légère profondeur à la zone */
     }
 </style>
 
 {% endblock %}
+{# Fermeture du bloc "content" hérité du template de base #}
